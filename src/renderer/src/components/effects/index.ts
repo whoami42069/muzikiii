@@ -1,1 +1,1 @@
-export { EffectsPanel } from './EffectsPanel';
+export { EffectsPanel } from './EffectsPanel'

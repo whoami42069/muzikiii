@@ -1,19 +1,19 @@
-import { create } from 'zustand';
+import { create } from 'zustand'
 
 export interface ProjectState {
-  name: string;
-  filePath: string | null;
-  isDirty: boolean;
-  lastSaved: number | null;
-  version: string;
+  name: string
+  filePath: string | null
+  isDirty: boolean
+  lastSaved: number | null
+  version: string
 }
 
 interface ProjectActions {
-  setName: (name: string) => void;
-  setFilePath: (path: string | null) => void;
-  setDirty: (dirty: boolean) => void;
-  markSaved: (filePath: string) => void;
-  resetProject: () => void;
+  setName: (name: string) => void
+  setFilePath: (path: string | null) => void
+  setDirty: (dirty: boolean) => void
+  markSaved: (filePath: string) => void
+  resetProject: () => void
 }
 
 const DEFAULT_STATE: ProjectState = {
@@ -21,8 +21,8 @@ const DEFAULT_STATE: ProjectState = {
   filePath: null,
   isDirty: false,
   lastSaved: null,
-  version: '1.0.0',
-};
+  version: '1.0.0'
+}
 
 export const useProjectStore = create<ProjectState & ProjectActions>((set) => ({
   ...DEFAULT_STATE,
@@ -37,8 +37,8 @@ export const useProjectStore = create<ProjectState & ProjectActions>((set) => ({
     set({
       filePath,
       isDirty: false,
-      lastSaved: Date.now(),
+      lastSaved: Date.now()
     }),
 
-  resetProject: () => set(DEFAULT_STATE),
-}));
+  resetProject: () => set(DEFAULT_STATE)
+}))

@@ -1,14 +1,14 @@
-import { useTransportStore } from '../../store';
-import { useAudioEngine } from '../../hooks';
+import { useTransportStore } from '../../store'
+import { useAudioEngine } from '../../hooks'
 
 interface ToolbarProps {
-  onImportClick: () => void;
-  onYouTubeClick: () => void;
-  onSaveClick: () => void;
-  onLoadClick: () => void;
-  onExportClick: () => void;
-  projectName?: string;
-  isDirty?: boolean;
+  onImportClick: () => void
+  onYouTubeClick: () => void
+  onSaveClick: () => void
+  onLoadClick: () => void
+  onExportClick: () => void
+  projectName?: string
+  isDirty?: boolean
 }
 
 export function Toolbar({
@@ -18,19 +18,19 @@ export function Toolbar({
   onLoadClick,
   onExportClick,
   projectName = 'Untitled Project',
-  isDirty = false,
+  isDirty = false
 }: ToolbarProps): React.JSX.Element {
-  const { currentTime, duration, bpm, setBpm } = useTransportStore();
-  const { isPlaying, play, pause, stop } = useAudioEngine();
+  const { currentTime, duration, bpm, setBpm } = useTransportStore()
+  const { isPlaying, play, pause, stop } = useAudioEngine()
 
   const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    const ms = Math.floor((seconds % 1) * 100);
+    const mins = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
+    const ms = Math.floor((seconds % 1) * 100)
     return `${mins.toString().padStart(2, '0')}:${secs
       .toString()
-      .padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
-  };
+      .padStart(2, '0')}.${ms.toString().padStart(2, '0')}`
+  }
 
   return (
     <header className="h-14 bg-daw-surface border-b border-daw-accent/30 flex items-center justify-between px-4 titlebar-drag">
@@ -102,12 +102,8 @@ export function Toolbar({
 
         {/* Time Display */}
         <div className="flex flex-col items-center min-w-[120px]">
-          <div className="font-mono text-xl text-daw-text">
-            {formatTime(currentTime)}
-          </div>
-          <div className="text-xs text-daw-muted">
-            / {formatTime(duration)}
-          </div>
+          <div className="font-mono text-xl text-daw-text">{formatTime(currentTime)}</div>
+          <div className="text-xs text-daw-muted">/ {formatTime(duration)}</div>
         </div>
 
         {/* BPM */}
@@ -131,7 +127,12 @@ export function Toolbar({
           className="px-4 py-2 text-sm bg-daw-accent hover:bg-daw-accent/80 rounded-lg transition-colors flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+            />
           </svg>
           Import
         </button>
@@ -140,11 +141,11 @@ export function Toolbar({
           className="px-4 py-2 text-sm bg-red-600 hover:bg-red-700 rounded-lg transition-colors flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
           </svg>
           YouTube
         </button>
       </div>
     </header>
-  );
+  )
 }

@@ -1,2 +1,2 @@
-export { NotificationToast } from './NotificationToast';
-export { ExportModal } from './ExportModal';
+export { NotificationToast } from './NotificationToast'
+export { ExportModal } from './ExportModal'

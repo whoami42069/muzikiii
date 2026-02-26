@@ -1,15 +1,15 @@
-import { useState } from 'react';
-import { SpectrumAnalyzer } from './SpectrumAnalyzer';
-import { Oscilloscope } from './Oscilloscope';
+import { useState } from 'react'
+import { SpectrumAnalyzer } from './SpectrumAnalyzer'
+import { Oscilloscope } from './Oscilloscope'
 
-type VisualizerMode = 'spectrum' | 'oscilloscope' | 'combined';
-type ColorTheme = 'classic' | 'rainbow' | 'gradient';
+type VisualizerMode = 'spectrum' | 'oscilloscope' | 'combined'
+type ColorTheme = 'classic' | 'rainbow' | 'gradient'
 
 export function VisualizerPanel(): React.JSX.Element {
-  const [mode, setMode] = useState<VisualizerMode>('combined');
-  const [colorTheme, setColorTheme] = useState<ColorTheme>('gradient');
-  const [showPeaks, setShowPeaks] = useState(true);
-  const [showGrid, setShowGrid] = useState(true);
+  const [mode, setMode] = useState<VisualizerMode>('combined')
+  const [colorTheme, setColorTheme] = useState<ColorTheme>('gradient')
+  const [showPeaks, setShowPeaks] = useState(true)
+  const [showGrid, setShowGrid] = useState(true)
 
   return (
     <div className="h-full flex flex-col">
@@ -108,11 +108,7 @@ export function VisualizerPanel(): React.JSX.Element {
       {/* Visualization Area */}
       <div className="flex-1 p-2 bg-daw-bg overflow-hidden">
         {mode === 'spectrum' && (
-          <SpectrumAnalyzer
-            height={92}
-            colorMode={colorTheme}
-            showPeaks={showPeaks}
-          />
+          <SpectrumAnalyzer height={92} colorMode={colorTheme} showPeaks={showPeaks} />
         )}
 
         {mode === 'oscilloscope' && (
@@ -128,11 +124,7 @@ export function VisualizerPanel(): React.JSX.Element {
         {mode === 'combined' && (
           <div className="flex flex-col gap-1 h-full">
             <div className="flex-1">
-              <SpectrumAnalyzer
-                height={44}
-                colorMode={colorTheme}
-                showPeaks={showPeaks}
-              />
+              <SpectrumAnalyzer height={44} colorMode={colorTheme} showPeaks={showPeaks} />
             </div>
             <div className="flex-1">
               <Oscilloscope
@@ -147,5 +139,5 @@ export function VisualizerPanel(): React.JSX.Element {
         )}
       </div>
     </div>
-  );
+  )
 }

@@ -1,33 +1,33 @@
-import { create } from 'zustand';
+import { create } from 'zustand'
 
 interface TransportState {
   // Playback state
-  isPlaying: boolean;
-  isPaused: boolean;
-  currentTime: number;  // in seconds
-  duration: number;     // in seconds
+  isPlaying: boolean
+  isPaused: boolean
+  currentTime: number // in seconds
+  duration: number // in seconds
 
   // Tempo
-  bpm: number;
+  bpm: number
 
   // Loop
-  loopEnabled: boolean;
-  loopStart: number;
-  loopEnd: number;
+  loopEnabled: boolean
+  loopStart: number
+  loopEnd: number
 
   // Actions
-  play: () => void;
-  pause: () => void;
-  stop: () => void;
-  seek: (time: number) => void;
-  setDuration: (duration: number) => void;
-  setBpm: (bpm: number) => void;
-  setLoop: (enabled: boolean, start?: number, end?: number) => void;
-  updateTime: (time: number) => void;
+  play: () => void
+  pause: () => void
+  stop: () => void
+  seek: (time: number) => void
+  setDuration: (duration: number) => void
+  setBpm: (bpm: number) => void
+  setLoop: (enabled: boolean, start?: number, end?: number) => void
+  updateTime: (time: number) => void
 
   // Direct setters (for audio engine sync)
-  setIsPlaying: (isPlaying: boolean) => void;
-  setCurrentTime: (time: number) => void;
+  setIsPlaying: (isPlaying: boolean) => void
+  setCurrentTime: (time: number) => void
 }
 
 export const useTransportStore = create<TransportState>((set) => ({
@@ -58,12 +58,12 @@ export const useTransportStore = create<TransportState>((set) => ({
     set((state) => ({
       loopEnabled: enabled,
       loopStart: start ?? state.loopStart,
-      loopEnd: end ?? state.loopEnd,
+      loopEnd: end ?? state.loopEnd
     })),
 
   updateTime: (time) => set({ currentTime: time }),
 
   // Direct setters for audio engine sync
   setIsPlaying: (isPlaying) => set({ isPlaying, isPaused: !isPlaying }),
-  setCurrentTime: (time) => set({ currentTime: time }),
-}));
+  setCurrentTime: (time) => set({ currentTime: time })
+}))

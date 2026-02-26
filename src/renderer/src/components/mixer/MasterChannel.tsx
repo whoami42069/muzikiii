@@ -1,36 +1,36 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useAudioEngine } from '../../hooks';
-import { audioEngine } from '../../audio/engine';
-import { StereoVUMeter } from './VUMeter';
+import { useCallback, useEffect, useState } from 'react'
+import { useAudioEngine } from '../../hooks'
+import { audioEngine } from '../../audio/engine'
+import { StereoVUMeter } from './VUMeter'
 
 export function MasterChannel(): React.JSX.Element {
-  const { setMasterVolume } = useAudioEngine();
-  const [volume, setVolume] = useState(0.8);
-  const [level, setLevel] = useState(-60);
+  const { setMasterVolume } = useAudioEngine()
+  const [volume, setVolume] = useState(0.8)
+  const [level, setLevel] = useState(-60)
 
   // Update level meter
   useEffect(() => {
-    const updateLevel = () => {
-      const masterLevel = audioEngine.getLevel();
-      setLevel(masterLevel);
-    };
+    const updateLevel = (): void => {
+      const masterLevel = audioEngine.getLevel()
+      setLevel(masterLevel)
+    }
 
-    const intervalId = setInterval(updateLevel, 50);
-    return () => clearInterval(intervalId);
-  }, []);
+    const intervalId = setInterval(updateLevel, 50)
+    return () => clearInterval(intervalId)
+  }, [])
 
   // Handle volume change
   const handleVolumeChange = useCallback(
     (newVolume: number) => {
-      setVolume(newVolume);
+      setVolume(newVolume)
       // Pass linear value directly - engine.ts handles dB conversion
-      setMasterVolume(newVolume);
+      setMasterVolume(newVolume)
     },
     [setMasterVolume]
-  );
+  )
 
   // Format volume as dB
-  const volumeDb = volume > 0 ? (20 * Math.log10(volume)).toFixed(1) : '-∞';
+  const volumeDb = volume > 0 ? (20 * Math.log10(volume)).toFixed(1) : '-∞'
 
   return (
     <div className="flex flex-col items-center p-3 bg-daw-accent rounded-lg" style={{ width: 90 }}>
@@ -66,7 +66,7 @@ export function MasterChannel(): React.JSX.Element {
                        [&::-webkit-slider-thumb]:to-blue-500
                        [&::-webkit-slider-thumb]:shadow-lg"
             style={{
-              background: `linear-gradient(to top, #0891b2 ${(volume / 1.25) * 100}%, var(--daw-bg) ${(volume / 1.25) * 100}%)`,
+              background: `linear-gradient(to top, #0891b2 ${(volume / 1.25) * 100}%, var(--daw-bg) ${(volume / 1.25) * 100}%)`
             }}
             title={`Master Volume: ${volumeDb} dB`}
           />
@@ -82,5 +82,5 @@ export function MasterChannel(): React.JSX.Element {
       {/* Output Label */}
       <div className="text-[9px] text-daw-muted mt-1">OUT 1-2</div>
     </div>
-  );
+  )
 }

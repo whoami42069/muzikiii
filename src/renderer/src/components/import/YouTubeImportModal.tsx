@@ -1,165 +1,162 @@
-import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 
-type DownloadStatus = 'idle' | 'validating' | 'downloading' | 'converting' | 'complete' | 'error';
+type DownloadStatus = 'idle' | 'validating' | 'downloading' | 'converting' | 'complete' | 'error'
 
 interface VideoInfo {
-  valid: boolean;
-  title?: string;
-  duration?: number;
-  thumbnail?: string;
-  channel?: string;
+  valid: boolean
+  title?: string
+  duration?: number
+  thumbnail?: string
+  channel?: string
 }
 
 interface DownloadProgress {
-  percentage: number;
-  downloadedBytes: number;
-  totalBytes: number;
-  speed?: string;
-  eta?: string;
-  status?: string;
+  percentage: number
+  downloadedBytes: number
+  totalBytes: number
+  speed?: string
+  eta?: string
+  status?: string
 }
 
 interface DownloadResult {
-  filePath: string;
+  filePath: string
   metadata: {
-    title: string;
-    artist?: string;
-    duration: number;
-    thumbnail?: string;
-  };
+    title: string
+    artist?: string
+    duration: number
+    thumbnail?: string
+  }
 }
 
 interface YouTubeImportModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onImportComplete: (filePath: string, metadata: DownloadResult['metadata']) => void;
+  isOpen: boolean
+  onClose: () => void
+  onImportComplete: (filePath: string, metadata: DownloadResult['metadata']) => void
 }
 
 export function YouTubeImportModal({
   isOpen,
   onClose,
-  onImportComplete,
+  onImportComplete
 }: YouTubeImportModalProps): React.JSX.Element | null {
-  const [url, setUrl] = useState('');
-  const [format, setFormat] = useState<'mp3' | 'wav' | 'flac'>('mp3');
-  const [quality, setQuality] = useState<'best' | 'medium' | 'low'>('best');
-  const [status, setStatus] = useState<DownloadStatus>('idle');
-  const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
-  const [progress, setProgress] = useState<DownloadProgress | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
-  const [instructions, setInstructions] = useState<string>('');
+  const [url, setUrl] = useState('')
+  const [format, setFormat] = useState<'mp3' | 'wav' | 'flac'>('mp3')
+  const [quality, setQuality] = useState<'best' | 'medium' | 'low'>('best')
+  const [status, setStatus] = useState<DownloadStatus>('idle')
+  const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null)
+  const [progress, setProgress] = useState<DownloadProgress | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [isAvailable, setIsAvailable] = useState<boolean | null>(null)
+  const [instructions, setInstructions] = useState<string>('')
 
   // Check if YouTube download is available
   useEffect(() => {
     if (isOpen) {
       window.api.youtube.checkAvailable().then((result) => {
-        setIsAvailable(result.available);
+        setIsAvailable(result.available)
         if (!result.available && 'instructions' in result) {
-          setInstructions(result.instructions as string);
+          setInstructions(result.instructions as string)
         }
-      });
+      })
     }
-  }, [isOpen]);
+  }, [isOpen])
 
   // Set up progress listener
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) return
 
     const unsubProgress = window.api.youtube.onProgress((data) => {
-      setProgress(data);
+      setProgress(data)
       if (data.status === 'converting') {
-        setStatus('converting');
+        setStatus('converting')
       } else if (data.status === 'complete') {
-        setStatus('complete');
+        setStatus('complete')
       }
-    });
+    })
 
     const unsubComplete = window.api.youtube.onComplete((data: DownloadResult) => {
-      setStatus('complete');
-      onImportComplete(data.filePath, data.metadata);
-    });
+      setStatus('complete')
+      onImportComplete(data.filePath, data.metadata)
+    })
 
     const unsubError = window.api.youtube.onError((data) => {
-      setStatus('error');
-      setError(data.message);
-    });
+      setStatus('error')
+      setError(data.message)
+    })
 
     return () => {
-      unsubProgress();
-      unsubComplete();
-      unsubError();
-    };
-  }, [isOpen, onImportComplete]);
+      unsubProgress()
+      unsubComplete()
+      unsubError()
+    }
+  }, [isOpen, onImportComplete])
 
   // Validate URL when it changes
   useEffect(() => {
-    if (!url || url.length < 10) {
-      setVideoInfo(null);
-      return;
-    }
+    if (!url || url.length < 10) return
 
     const timer = setTimeout(async () => {
-      setStatus('validating');
-      const info = await window.api.youtube.validateUrl(url);
-      setVideoInfo(info);
-      setStatus('idle');
-    }, 500);
+      setStatus('validating')
+      const info = await window.api.youtube.validateUrl(url)
+      setVideoInfo(info)
+      setStatus('idle')
+    }, 500)
 
-    return () => clearTimeout(timer);
-  }, [url]);
+    return () => clearTimeout(timer)
+  }, [url])
 
   const handleDownload = useCallback(async () => {
-    if (!url || !videoInfo?.valid) return;
+    if (!url || !videoInfo?.valid) return
 
-    setStatus('downloading');
-    setProgress(null);
-    setError(null);
+    setStatus('downloading')
+    setProgress(null)
+    setError(null)
 
     try {
-      await window.api.youtube.download({ url, outputFormat: format, quality });
+      await window.api.youtube.download({ url, outputFormat: format, quality })
     } catch (err) {
-      setStatus('error');
-      setError(err instanceof Error ? err.message : 'Download failed');
+      setStatus('error')
+      setError(err instanceof Error ? err.message : 'Download failed')
     }
-  }, [url, format, quality, videoInfo]);
+  }, [url, format, quality, videoInfo])
 
   const handleCancel = useCallback(async () => {
-    await window.api.youtube.cancel();
-    setStatus('idle');
-    setProgress(null);
-  }, []);
+    await window.api.youtube.cancel()
+    setStatus('idle')
+    setProgress(null)
+  }, [])
 
   const handleClose = useCallback(() => {
     if (status === 'downloading') {
-      handleCancel();
+      handleCancel()
     }
-    setUrl('');
-    setVideoInfo(null);
-    setStatus('idle');
-    setProgress(null);
-    setError(null);
-    onClose();
-  }, [status, handleCancel, onClose]);
+    setUrl('')
+    setVideoInfo(null)
+    setStatus('idle')
+    setProgress(null)
+    setError(null)
+    onClose()
+  }, [status, handleCancel, onClose])
 
   const formatDuration = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+    const mins = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
 
   const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-  };
+    if (bytes === 0) return '0 B'
+    const k = 1024
+    const sizes = ['B', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
+  }
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
-  const isDownloading = status === 'downloading' || status === 'converting';
+  const isDownloading = status === 'downloading' || status === 'converting'
 
   return (
     <AnimatePresence>
@@ -195,7 +192,12 @@ export function YouTubeImportModal({
               className="w-8 h-8 rounded-lg hover:bg-daw-accent/50 flex items-center justify-center text-daw-muted hover:text-daw-text transition-colors disabled:opacity-50"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -205,7 +207,9 @@ export function YouTubeImportModal({
             {/* Availability warning */}
             {isAvailable === false && (
               <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
-                <p className="text-sm text-yellow-400 font-medium mb-2">YouTube download not available</p>
+                <p className="text-sm text-yellow-400 font-medium mb-2">
+                  YouTube download not available
+                </p>
                 <pre className="text-xs text-daw-muted whitespace-pre-wrap">{instructions}</pre>
               </div>
             )}
@@ -216,7 +220,11 @@ export function YouTubeImportModal({
               <input
                 type="text"
                 value={url}
-                onChange={(e) => setUrl(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setUrl(val)
+                  if (!val || val.length < 10) setVideoInfo(null)
+                }}
                 placeholder="https://www.youtube.com/watch?v=..."
                 disabled={isDownloading || isAvailable === false}
                 className="w-full px-4 py-3 bg-daw-bg border border-daw-accent/30 rounded-lg text-daw-text placeholder-daw-muted/50 focus:outline-none focus:border-daw-highlight disabled:opacity-50"
@@ -325,8 +333,18 @@ export function YouTubeImportModal({
                 className="flex items-center gap-3 bg-green-500/10 border border-green-500/30 rounded-lg p-3"
               >
                 <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-5 h-5 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                 </div>
                 <div>
@@ -380,5 +398,5 @@ export function YouTubeImportModal({
         </motion.div>
       </motion.div>
     </AnimatePresence>
-  );
+  )
 }

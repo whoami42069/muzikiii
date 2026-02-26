@@ -1,18 +1,18 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react'
 
 interface VUMeterProps {
-  level: number; // Current level in dB
-  peakHoldTime?: number; // Time to hold peak indicator (ms)
-  orientation?: 'vertical' | 'horizontal';
-  height?: number;
-  width?: number;
-  showScale?: boolean;
+  level: number // Current level in dB
+  peakHoldTime?: number // Time to hold peak indicator (ms)
+  orientation?: 'vertical' | 'horizontal'
+  height?: number
+  width?: number
+  showScale?: boolean
 }
 
 // dB scale marks
-const DB_MARKS = [0, -6, -12, -18, -24, -36, -48];
-const MIN_DB = -60;
-const MAX_DB = 6;
+const DB_MARKS = [0, -6, -12, -18, -24, -36, -48]
+const MIN_DB = -60
+const MAX_DB = 6
 
 export function VUMeter({
   level,
@@ -20,10 +20,10 @@ export function VUMeter({
   orientation = 'vertical',
   height = 120,
   width = 12,
-  showScale = false,
+  showScale = false
 }: VUMeterProps): React.JSX.Element {
-  const [peakLevel, setPeakLevel] = useState(MIN_DB);
-  const peakTimeoutRef = useRef<number | null>(null);
+  const [peakLevel, setPeakLevel] = useState(MIN_DB)
+  const peakTimeoutRef = useRef<number | null>(null)
 
   // Update peak hold - use functional state update to avoid stale closure
   useEffect(() => {
@@ -31,46 +31,46 @@ export function VUMeter({
       if (level > prev) {
         // Clear existing timeout
         if (peakTimeoutRef.current) {
-          clearTimeout(peakTimeoutRef.current);
+          clearTimeout(peakTimeoutRef.current)
         }
 
         // Set new timeout to reset peak
         peakTimeoutRef.current = window.setTimeout(() => {
-          setPeakLevel(MIN_DB);
-        }, peakHoldTime);
+          setPeakLevel(MIN_DB)
+        }, peakHoldTime)
 
-        return level;
+        return level
       }
-      return prev;
-    });
-  }, [level, peakHoldTime]);
+      return prev
+    })
+  }, [level, peakHoldTime])
 
   // Cleanup on unmount only
   useEffect(() => {
     return () => {
       if (peakTimeoutRef.current) {
-        clearTimeout(peakTimeoutRef.current);
+        clearTimeout(peakTimeoutRef.current)
       }
-    };
-  }, []);
+    }
+  }, [])
 
   // Convert dB to percentage (0-100)
   const dbToPercent = (db: number): number => {
-    const clamped = Math.max(MIN_DB, Math.min(MAX_DB, db));
-    return ((clamped - MIN_DB) / (MAX_DB - MIN_DB)) * 100;
-  };
+    const clamped = Math.max(MIN_DB, Math.min(MAX_DB, db))
+    return ((clamped - MIN_DB) / (MAX_DB - MIN_DB)) * 100
+  }
 
   // Get color based on level
   const getLevelColor = (db: number): string => {
-    if (db > 0) return '#ef4444'; // Red (clipping)
-    if (db > -6) return '#f97316'; // Orange (hot)
-    if (db > -12) return '#eab308'; // Yellow (warm)
-    return '#22c55e'; // Green (normal)
-  };
+    if (db > 0) return '#ef4444' // Red (clipping)
+    if (db > -6) return '#f97316' // Orange (hot)
+    if (db > -12) return '#eab308' // Yellow (warm)
+    return '#22c55e' // Green (normal)
+  }
 
-  const levelPercent = dbToPercent(level);
-  const peakPercent = dbToPercent(peakLevel);
-  const levelColor = getLevelColor(level);
+  const levelPercent = dbToPercent(level)
+  const peakPercent = dbToPercent(peakLevel)
+  const levelColor = getLevelColor(level)
 
   if (orientation === 'horizontal') {
     return (
@@ -84,7 +84,7 @@ export function VUMeter({
             className="absolute left-0 top-0 bottom-0 transition-all duration-75"
             style={{
               width: `${levelPercent}%`,
-              background: `linear-gradient(to right, #22c55e, ${levelColor})`,
+              background: `linear-gradient(to right, #22c55e, ${levelColor})`
             }}
           />
           {/* Peak indicator */}
@@ -101,16 +101,13 @@ export function VUMeter({
           </span>
         )}
       </div>
-    );
+    )
   }
 
   return (
     <div className="flex gap-1">
       {showScale && (
-        <div
-          className="flex flex-col justify-between text-[9px] text-daw-muted"
-          style={{ height }}
-        >
+        <div className="flex flex-col justify-between text-[9px] text-daw-muted" style={{ height }}>
           {DB_MARKS.map((db) => (
             <span key={db} className="leading-none">
               {db}
@@ -118,16 +115,13 @@ export function VUMeter({
           ))}
         </div>
       )}
-      <div
-        className="relative bg-daw-bg rounded overflow-hidden"
-        style={{ width, height }}
-      >
+      <div className="relative bg-daw-bg rounded overflow-hidden" style={{ width, height }}>
         {/* Level bar */}
         <div
           className="absolute left-0 right-0 bottom-0 transition-all duration-75"
           style={{
             height: `${levelPercent}%`,
-            background: `linear-gradient(to top, #22c55e 0%, #22c55e 60%, #eab308 80%, ${levelColor} 100%)`,
+            background: `linear-gradient(to top, #22c55e 0%, #22c55e 60%, #eab308 80%, ${levelColor} 100%)`
           }}
         />
         {/* Peak indicator */}
@@ -143,22 +137,22 @@ export function VUMeter({
         )}
       </div>
     </div>
-  );
+  )
 }
 
 // Stereo VU Meter with left and right channels
 interface StereoVUMeterProps {
-  leftLevel: number;
-  rightLevel: number;
-  height?: number;
-  showScale?: boolean;
+  leftLevel: number
+  rightLevel: number
+  height?: number
+  showScale?: boolean
 }
 
 export function StereoVUMeter({
   leftLevel,
   rightLevel,
   height = 120,
-  showScale = true,
+  showScale = true
 }: StereoVUMeterProps): React.JSX.Element {
   return (
     <div className="flex gap-0.5 items-end">
@@ -181,5 +175,5 @@ export function StereoVUMeter({
         <span>R</span>
       </div>
     </div>
-  );
+  )
 }

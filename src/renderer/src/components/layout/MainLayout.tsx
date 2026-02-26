@@ -1,23 +1,23 @@
-import { useState } from 'react';
-import { Toolbar } from './Toolbar';
-import { Sidebar } from './Sidebar';
-import { StatusBar } from './StatusBar';
+import { useState } from 'react'
+import { Toolbar } from './Toolbar'
+import { Sidebar } from './Sidebar'
+import { StatusBar } from './StatusBar'
 
 interface MainLayoutProps {
-  children: React.ReactNode;
-  effectsPanel: React.ReactNode;
-  visualizerPanel: React.ReactNode;
-  mixerPanel: React.ReactNode;
-  onImportClick: () => void;
-  onYouTubeClick: () => void;
-  onSaveClick: () => void;
-  onLoadClick: () => void;
-  onExportClick: () => void;
-  projectName?: string;
-  isDirty?: boolean;
+  children: React.ReactNode
+  effectsPanel: React.ReactNode
+  visualizerPanel: React.ReactNode
+  mixerPanel: React.ReactNode
+  onImportClick: () => void
+  onYouTubeClick: () => void
+  onSaveClick: () => void
+  onLoadClick: () => void
+  onExportClick: () => void
+  projectName?: string
+  isDirty?: boolean
 }
 
-type BottomPanelView = 'visualizer' | 'mixer' | 'none';
+type BottomPanelView = 'visualizer' | 'mixer' | 'none'
 
 export function MainLayout({
   children,
@@ -30,17 +30,17 @@ export function MainLayout({
   onLoadClick,
   onExportClick,
   projectName = 'Untitled Project',
-  isDirty = false,
+  isDirty = false
 }: MainLayoutProps): React.JSX.Element {
-  const [showEffects, setShowEffects] = useState(true);
-  const [bottomPanel, setBottomPanel] = useState<BottomPanelView>('visualizer');
-  const [status, setStatus] = useState('Ready');
+  const [showEffects, setShowEffects] = useState(true)
+  const [bottomPanel, setBottomPanel] = useState<BottomPanelView>('visualizer')
+  const [status, setStatus] = useState('Ready')
 
-  const handleTrackSelect = (trackId: string) => {
-    console.log('Selected track:', trackId);
-    setStatus(`Selected: Track ${trackId.slice(-4)}`);
-    setTimeout(() => setStatus('Ready'), 2000);
-  };
+  const handleTrackSelect = (trackId: string): void => {
+    console.log('Selected track:', trackId)
+    setStatus(`Selected: Track ${trackId.slice(-4)}`)
+    setTimeout(() => setStatus('Ready'), 2000)
+  }
 
   return (
     <div className="h-screen w-screen flex flex-col bg-daw-bg text-daw-text overflow-hidden">
@@ -63,9 +63,7 @@ export function MainLayout({
         {/* Center: Timeline + Visualizer */}
         <main className="flex-1 flex flex-col overflow-hidden">
           {/* Timeline Area */}
-          <div className="flex-1 overflow-auto">
-            {children}
-          </div>
+          <div className="flex-1 overflow-auto">{children}</div>
 
           {/* Bottom Panel (Visualizer or Mixer) */}
           {bottomPanel !== 'none' && (
@@ -154,9 +152,7 @@ export function MainLayout({
             className="w-6 bg-daw-surface border-l border-daw-accent/30 flex items-center justify-center text-daw-muted hover:text-daw-text"
             title="Show effects"
           >
-            <span className="transform -rotate-90 text-xs whitespace-nowrap">
-              ◀ Effects
-            </span>
+            <span className="transform -rotate-90 text-xs whitespace-nowrap">◀ Effects</span>
           </button>
         )}
       </div>
@@ -164,5 +160,5 @@ export function MainLayout({
       {/* Status Bar */}
       <StatusBar status={status} />
     </div>
-  );
+  )
 }

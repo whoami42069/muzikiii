@@ -1,18 +1,18 @@
-import { useTracksStore } from '../../store';
-import { ChannelStrip } from './ChannelStrip';
-import { MasterChannel } from './MasterChannel';
+import { useTracksStore } from '../../store'
+import { ChannelStrip } from './ChannelStrip'
+import { MasterChannel } from './MasterChannel'
 
 interface MixerPanelProps {
-  onTrackSelect?: (trackId: string) => void;
+  onTrackSelect?: (trackId: string) => void
 }
 
 export function MixerPanel({ onTrackSelect }: MixerPanelProps): React.JSX.Element {
-  const { tracks, selectedTrackId, selectTrack } = useTracksStore();
+  const { tracks, selectedTrackId, selectTrack } = useTracksStore()
 
-  const handleTrackSelect = (trackId: string) => {
-    selectTrack(trackId);
-    onTrackSelect?.(trackId);
-  };
+  const handleTrackSelect = (trackId: string): void => {
+    selectTrack(trackId)
+    onTrackSelect?.(trackId)
+  }
 
   return (
     <div className="h-full flex flex-col bg-daw-bg">
@@ -55,5 +55,5 @@ export function MixerPanel({ onTrackSelect }: MixerPanelProps): React.JSX.Elemen
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,57 +1,57 @@
-import { useCallback, useState } from 'react';
-import type { Track } from '../../types';
-import { useAudioEngine } from '../../hooks';
-import { useTracksStore } from '../../store';
+import { useCallback, useState } from 'react'
+import type { Track } from '../../types'
+import { useAudioEngine } from '../../hooks'
+import { useTracksStore } from '../../store'
 
 interface TrackControlsProps {
-  track: Track;
-  isSelected: boolean;
-  onSelect: () => void;
-  onRemove: () => void;
+  track: Track
+  isSelected: boolean
+  onSelect: () => void
+  onRemove: () => void
 }
 
 export function TrackControls({
   track,
   isSelected,
   onSelect,
-  onRemove,
+  onRemove
 }: TrackControlsProps): React.JSX.Element {
-  const { toggleMute, toggleSolo, setVolume, setPan } = useTracksStore();
-  const { setTrackVolume, setTrackPan, setTrackMute, setTrackSolo } = useAudioEngine();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const { toggleMute, toggleSolo, setVolume, setPan } = useTracksStore()
+  const { setTrackVolume, setTrackPan, setTrackMute, setTrackSolo } = useAudioEngine()
+  const [isExpanded, setIsExpanded] = useState(false)
 
   // Handle volume change - update both store and audio engine
   const handleVolumeChange = useCallback(
     (newVolume: number) => {
-      setVolume(track.id, newVolume);
-      setTrackVolume(track.id, newVolume);
+      setVolume(track.id, newVolume)
+      setTrackVolume(track.id, newVolume)
     },
     [track.id, setVolume, setTrackVolume]
-  );
+  )
 
   // Handle pan change
   const handlePanChange = useCallback(
     (newPan: number) => {
-      setPan(track.id, newPan);
-      setTrackPan(track.id, newPan);
+      setPan(track.id, newPan)
+      setTrackPan(track.id, newPan)
     },
     [track.id, setPan, setTrackPan]
-  );
+  )
 
   // Handle mute toggle
   const handleMuteToggle = useCallback(() => {
-    toggleMute(track.id);
-    setTrackMute(track.id, !track.muted);
-  }, [track.id, track.muted, toggleMute, setTrackMute]);
+    toggleMute(track.id)
+    setTrackMute(track.id, !track.muted)
+  }, [track.id, track.muted, toggleMute, setTrackMute])
 
   // Handle solo toggle
   const handleSoloToggle = useCallback(() => {
-    toggleSolo(track.id);
-    setTrackSolo(track.id, !track.solo);
-  }, [track.id, track.solo, toggleSolo, setTrackSolo]);
+    toggleSolo(track.id)
+    setTrackSolo(track.id, !track.solo)
+  }, [track.id, track.solo, toggleSolo, setTrackSolo])
 
   // Format volume as dB
-  const volumeDb = track.volume > 0 ? (20 * Math.log10(track.volume)).toFixed(1) : '-∞';
+  const volumeDb = track.volume > 0 ? (20 * Math.log10(track.volume)).toFixed(1) : '-∞'
 
   return (
     <div
@@ -61,23 +61,17 @@ export function TrackControls({
       `}
     >
       {/* Main Track Row */}
-      <div
-        onClick={onSelect}
-        className="p-2 cursor-pointer"
-      >
+      <div onClick={onSelect} className="p-2 cursor-pointer">
         <div className="flex items-center gap-2">
           {/* Color indicator & expand button */}
           <button
             onClick={(e) => {
-              e.stopPropagation();
-              setIsExpanded(!isExpanded);
+              e.stopPropagation()
+              setIsExpanded(!isExpanded)
             }}
             className="flex items-center justify-center w-6 h-6 rounded hover:bg-daw-bg/50 transition-colors"
           >
-            <div
-              className="w-2 h-6 rounded-full"
-              style={{ backgroundColor: track.color }}
-            />
+            <div className="w-2 h-6 rounded-full" style={{ backgroundColor: track.color }} />
           </button>
 
           {/* Track Info */}
@@ -89,17 +83,15 @@ export function TrackControls({
                 <div className="w-3 h-3 border-2 border-daw-muted border-t-transparent rounded-full animate-spin" />
               )}
             </div>
-            <div className="text-xs text-daw-muted">
-              {formatDuration(track.metadata.duration)}
-            </div>
+            <div className="text-xs text-daw-muted">{formatDuration(track.metadata.duration)}</div>
           </div>
 
           {/* Quick Controls */}
           <div className="flex items-center gap-1">
             <button
               onClick={(e) => {
-                e.stopPropagation();
-                handleMuteToggle();
+                e.stopPropagation()
+                handleMuteToggle()
               }}
               className={`
                 w-6 h-6 text-xs font-bold rounded transition-colors
@@ -111,8 +103,8 @@ export function TrackControls({
             </button>
             <button
               onClick={(e) => {
-                e.stopPropagation();
-                handleSoloToggle();
+                e.stopPropagation()
+                handleSoloToggle()
               }}
               className={`
                 w-6 h-6 text-xs font-bold rounded transition-colors
@@ -142,7 +134,7 @@ export function TrackControls({
                        [&::-webkit-slider-thumb]:rounded-full
                        [&::-webkit-slider-thumb]:bg-daw-highlight"
             style={{
-              background: `linear-gradient(to right, ${track.color} ${track.volume * 100}%, var(--daw-bg) ${track.volume * 100}%)`,
+              background: `linear-gradient(to right, ${track.color} ${track.volume * 100}%, var(--daw-bg) ${track.volume * 100}%)`
             }}
           />
           <span className="text-xs text-daw-muted w-12 text-right">{volumeDb} dB</span>
@@ -157,7 +149,11 @@ export function TrackControls({
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs text-daw-muted">Pan</span>
               <span className="text-xs text-daw-muted">
-                {track.pan === 0 ? 'C' : track.pan < 0 ? `L${Math.abs(Math.round(track.pan * 100))}` : `R${Math.round(track.pan * 100)}`}
+                {track.pan === 0
+                  ? 'C'
+                  : track.pan < 0
+                    ? `L${Math.abs(Math.round(track.pan * 100))}`
+                    : `R${Math.round(track.pan * 100)}`}
               </span>
             </div>
             <input
@@ -193,7 +189,9 @@ export function TrackControls({
             </div>
             <div className="flex justify-between">
               <span>Channels:</span>
-              <span className="text-daw-text">{track.metadata.channels === 2 ? 'Stereo' : 'Mono'}</span>
+              <span className="text-daw-text">
+                {track.metadata.channels === 2 ? 'Stereo' : 'Mono'}
+              </span>
             </div>
           </div>
 
@@ -207,12 +205,12 @@ export function TrackControls({
         </div>
       )}
     </div>
-  );
+  )
 }
 
 // Format duration in MM:SS
 function formatDuration(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
+  const mins = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+  return `${mins}:${secs.toString().padStart(2, '0')}`
 }

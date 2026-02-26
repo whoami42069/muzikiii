@@ -1,13 +1,10 @@
 interface PlayheadProps {
-  currentTime: number;
-  pixelsPerSecond: number;
+  currentTime: number
+  pixelsPerSecond: number
 }
 
-export function Playhead({
-  currentTime,
-  pixelsPerSecond,
-}: PlayheadProps): React.JSX.Element {
-  const position = currentTime * pixelsPerSecond;
+export function Playhead({ currentTime, pixelsPerSecond }: PlayheadProps): React.JSX.Element {
+  const position = currentTime * pixelsPerSecond
 
   return (
     <div
@@ -22,7 +19,7 @@ export function Playhead({
           height: 0,
           borderLeft: '6px solid transparent',
           borderRight: '6px solid transparent',
-          borderTop: '8px solid #e94560',
+          borderTop: '8px solid #e94560'
         }}
       />
 
@@ -30,9 +27,9 @@ export function Playhead({
       <div
         className="absolute top-0 bottom-0 w-1 -left-0.5 opacity-30"
         style={{
-          background: 'linear-gradient(to right, transparent, #e94560, transparent)',
+          background: 'linear-gradient(to right, transparent, #e94560, transparent)'
         }}
       />
     </div>
-  );
+  )
 }

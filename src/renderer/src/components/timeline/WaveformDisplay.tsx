@@ -1,13 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
-import WaveSurfer from 'wavesurfer.js';
-import { audioEngine } from '../../audio/engine';
+import { useEffect, useRef, useState } from 'react'
+import WaveSurfer from 'wavesurfer.js'
+import { audioEngine } from '../../audio/engine'
 
 interface WaveformDisplayProps {
-  trackId: string;
-  filePath: string;
-  color: string;
-  pixelsPerSecond: number;
-  duration: number;
+  trackId: string
+  filePath: string
+  color: string
+  pixelsPerSecond: number
+  duration: number
 }
 
 export function WaveformDisplay({
@@ -15,26 +15,19 @@ export function WaveformDisplay({
   filePath,
   color,
   pixelsPerSecond,
-  duration,
+  duration
 }: WaveformDisplayProps): React.JSX.Element {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const wavesurferRef = useRef<WaveSurfer | null>(null);
-  const [isWaveformReady, setIsWaveformReady] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null)
+  const wavesurferRef = useRef<WaveSurfer | null>(null)
+  const [isWaveformReady, setIsWaveformReady] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Calculate width based on duration and zoom
-  const width = Math.max(duration * pixelsPerSecond, 100);
+  const width = Math.max(duration * pixelsPerSecond, 100)
 
   // Initialize WaveSurfer
   useEffect(() => {
-    if (!containerRef.current || !filePath) return;
-
-    // Clean up existing instance
-    if (wavesurferRef.current) {
-      wavesurferRef.current.destroy();
-      wavesurferRef.current = null;
-      setIsWaveformReady(false);
-    }
+    if (!containerRef.current || !filePath) return
 
     try {
       // Create WaveSurfer instance (for visualization only, not playback)
@@ -52,78 +45,77 @@ export function WaveformDisplay({
         backend: 'WebAudio',
         barWidth: 2,
         barGap: 1,
-        barRadius: 1,
-      });
+        barRadius: 1
+      })
 
       // Event handlers
       ws.on('ready', () => {
-        console.log(`[WaveformDisplay] Waveform ready for track ${trackId}`);
-        setIsWaveformReady(true);
-        setError(null);
-      });
+        console.log(`[WaveformDisplay] Waveform ready for track ${trackId}`)
+        setIsWaveformReady(true)
+        setError(null)
+      })
 
       ws.on('error', (err) => {
-        console.error(`[WaveformDisplay] Error for track ${trackId}:`, err);
-        setError('Failed to load waveform');
-        setIsWaveformReady(false);
-      });
+        console.error(`[WaveformDisplay] Error for track ${trackId}:`, err)
+        setError('Failed to load waveform')
+        setIsWaveformReady(false)
+      })
 
       // Load the audio file for waveform visualization
       // Note: We only use wavesurfer for visualization, Tone.js handles playback
-      ws.load(filePath);
+      ws.load(filePath)
 
-      wavesurferRef.current = ws;
+      wavesurferRef.current = ws
     } catch (err) {
-      console.error(`[WaveformDisplay] Init error for track ${trackId}:`, err);
-      setError('Failed to initialize waveform');
+      console.error(`[WaveformDisplay] Init error for track ${trackId}:`, err)
+      // Defer setState to avoid synchronous setState in effect body
+      setTimeout(() => setError('Failed to initialize waveform'), 0)
     }
 
     return () => {
       if (wavesurferRef.current) {
-        wavesurferRef.current.destroy();
-        wavesurferRef.current = null;
+        wavesurferRef.current.destroy()
+        wavesurferRef.current = null
       }
-    };
-  }, [filePath, trackId, color, pixelsPerSecond]);
+      setIsWaveformReady(false)
+    }
+  }, [filePath, trackId, color, pixelsPerSecond])
 
   // Update zoom level
   useEffect(() => {
     if (wavesurferRef.current && isWaveformReady) {
-      wavesurferRef.current.zoom(pixelsPerSecond);
+      wavesurferRef.current.zoom(pixelsPerSecond)
     }
-  }, [pixelsPerSecond, isWaveformReady]);
+  }, [pixelsPerSecond, isWaveformReady])
 
   // Track playback progress for custom cursor
-  const [playbackProgress, setPlaybackProgress] = useState(0);
+  const [playbackProgress, setPlaybackProgress] = useState(0)
 
   // Update playback progress periodically (not continuously with RAF)
   useEffect(() => {
-    if (!wavesurferRef.current || !isWaveformReady) return;
+    if (!wavesurferRef.current || !isWaveformReady) return
 
-    const updateProgress = () => {
+    const updateProgress = (): void => {
       if (wavesurferRef.current && audioEngine.isInitialized()) {
-        const currentTime = audioEngine.getCurrentTime();
-        const trackDuration = wavesurferRef.current.getDuration();
+        const currentTime = audioEngine.getCurrentTime()
+        const trackDuration = wavesurferRef.current.getDuration()
         if (trackDuration > 0) {
-          const progress = currentTime / trackDuration;
-          setPlaybackProgress(Math.min(Math.max(progress, 0), 1));
+          const progress = currentTime / trackDuration
+          setPlaybackProgress(Math.min(Math.max(progress, 0), 1))
         }
       }
-    };
+    }
 
     // Update at a reasonable rate (60fps max) instead of continuous RAF
-    const intervalId = setInterval(updateProgress, 16);
+    const intervalId = setInterval(updateProgress, 16)
 
     return () => {
-      clearInterval(intervalId);
-    };
-  }, [isWaveformReady]);
+      clearInterval(intervalId)
+    }
+  }, [isWaveformReady])
 
   return (
-    <div
-      className="relative w-full h-full"
-      style={{ width }}
-    >
+    <div className="relative w-full h-full" style={{ width }}>
       {/* Loading state */}
       {!isWaveformReady && !error && (
         <div className="absolute inset-0 flex items-center justify-center bg-daw-surface/20">
@@ -154,7 +146,7 @@ export function WaveformDisplay({
           style={{
             left: `${playbackProgress * 100}%`,
             backgroundColor: color,
-            boxShadow: `0 0 4px ${color}`,
+            boxShadow: `0 0 4px ${color}`
           }}
         />
       )}
@@ -166,7 +158,7 @@ export function WaveformDisplay({
         </div>
       )}
     </div>
-  );
+  )
 }
 
 // Simple placeholder waveform - uses consistent pattern (no random values)
@@ -175,7 +167,7 @@ function PlaceholderWaveform({ color }: { color: string }): React.JSX.Element {
     <div className="flex items-center gap-px w-full h-full">
       {Array.from({ length: 80 }).map((_, i) => {
         // Use deterministic pattern instead of Math.random()
-        const height = 15 + Math.sin(i * 0.3) * 30 + Math.cos(i * 0.15) * 20;
+        const height = 15 + Math.sin(i * 0.3) * 30 + Math.cos(i * 0.15) * 20
         return (
           <div
             key={i}
@@ -183,11 +175,11 @@ function PlaceholderWaveform({ color }: { color: string }): React.JSX.Element {
             style={{
               height: `${height}%`,
               backgroundColor: color,
-              opacity: 0.4,
+              opacity: 0.4
             }}
           />
-        );
+        )
       })}
     </div>
-  );
+  )
 }

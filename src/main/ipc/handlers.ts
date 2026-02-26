@@ -1,21 +1,21 @@
-import { ipcMain, dialog, app, BrowserWindow } from 'electron';
-import { registerFileHandlers } from './file.ipc';
-import { registerYouTubeHandlers } from './youtube.ipc';
+import { ipcMain, dialog, app, BrowserWindow } from 'electron'
+import { registerFileHandlers } from './file.ipc'
+import { registerYouTubeHandlers } from './youtube.ipc'
 
 /**
  * Register all IPC handlers for the main process
  */
 export function registerAllHandlers(mainWindow: BrowserWindow): void {
   // File operations
-  registerFileHandlers();
+  registerFileHandlers()
 
   // YouTube download
-  registerYouTubeHandlers(mainWindow);
+  registerYouTubeHandlers(mainWindow)
 
   // App utilities
-  registerAppHandlers();
+  registerAppHandlers()
 
-  console.log('[IPC] All handlers registered');
+  console.log('[IPC] All handlers registered')
 }
 
 /**
@@ -24,21 +24,21 @@ export function registerAllHandlers(mainWindow: BrowserWindow): void {
 function registerAppHandlers(): void {
   // Get app paths
   ipcMain.handle('app:get-path', async (_, name: 'userData' | 'music' | 'documents') => {
-    return app.getPath(name);
-  });
+    return app.getPath(name)
+  })
 
   // Show native dialog
   ipcMain.handle('app:show-dialog', async (_, options: Electron.MessageBoxOptions) => {
-    return dialog.showMessageBox(options);
-  });
+    return dialog.showMessageBox(options)
+  })
 
   // Show open dialog
   ipcMain.handle('app:show-open-dialog', async (_, options: Electron.OpenDialogOptions) => {
-    return dialog.showOpenDialog(options);
-  });
+    return dialog.showOpenDialog(options)
+  })
 
   // Show save dialog
   ipcMain.handle('app:show-save-dialog', async (_, options: Electron.SaveDialogOptions) => {
-    return dialog.showSaveDialog(options);
-  });
+    return dialog.showSaveDialog(options)
+  })
 }

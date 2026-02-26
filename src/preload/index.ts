@@ -40,19 +40,22 @@ const api = {
     validateUrl: (url: string) => ipcRenderer.invoke('youtube:validate-url', url),
 
     onProgress: (callback: (data: YouTubeProgressPayload) => void) => {
-      const handler = (_: Electron.IpcRendererEvent, data: YouTubeProgressPayload) => callback(data)
+      const handler = (_: Electron.IpcRendererEvent, data: YouTubeProgressPayload): void =>
+        callback(data)
       ipcRenderer.on('youtube:progress', handler)
       return () => ipcRenderer.removeListener('youtube:progress', handler)
     },
 
     onComplete: (callback: (data: YouTubeCompletePayload) => void) => {
-      const handler = (_: Electron.IpcRendererEvent, data: YouTubeCompletePayload) => callback(data)
+      const handler = (_: Electron.IpcRendererEvent, data: YouTubeCompletePayload): void =>
+        callback(data)
       ipcRenderer.on('youtube:complete', handler)
       return () => ipcRenderer.removeListener('youtube:complete', handler)
     },
 
     onError: (callback: (data: YouTubeErrorPayload) => void) => {
-      const handler = (_: Electron.IpcRendererEvent, data: YouTubeErrorPayload) => callback(data)
+      const handler = (_: Electron.IpcRendererEvent, data: YouTubeErrorPayload): void =>
+        callback(data)
       ipcRenderer.on('youtube:error', handler)
       return () => ipcRenderer.removeListener('youtube:error', handler)
     }
@@ -79,8 +82,7 @@ const api = {
 
   // App utilities
   app: {
-    getPath: (name: 'userData' | 'music' | 'documents') =>
-      ipcRenderer.invoke('app:get-path', name),
+    getPath: (name: 'userData' | 'music' | 'documents') => ipcRenderer.invoke('app:get-path', name),
 
     showDialog: (options: Electron.MessageBoxOptions) =>
       ipcRenderer.invoke('app:show-dialog', options),

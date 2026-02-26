@@ -1,44 +1,44 @@
 // Track-related type definitions
 
 export interface TrackMetadata {
-  title: string;
-  artist?: string;
-  album?: string;
-  duration: number;      // in seconds
-  sampleRate: number;
-  channels: number;
-  source: 'youtube' | 'local' | 'recording';
-  sourceUrl?: string;    // Original YouTube URL if applicable
-  filePath: string;      // Local file path
-  addedAt: number;       // Timestamp
+  title: string
+  artist?: string
+  album?: string
+  duration: number // in seconds
+  sampleRate: number
+  channels: number
+  source: 'youtube' | 'local' | 'recording'
+  sourceUrl?: string // Original YouTube URL if applicable
+  filePath: string // Local file path
+  addedAt: number // Timestamp
 }
 
 export interface Track {
-  id: string;
-  metadata: TrackMetadata;
+  id: string
+  metadata: TrackMetadata
 
   // Playback state
-  isLoaded: boolean;
-  isPlaying: boolean;
+  isLoaded: boolean
+  isPlaying: boolean
 
   // Mixing
-  volume: number;        // 0-1
-  pan: number;           // -1 to 1
-  muted: boolean;
-  solo: boolean;
+  volume: number // 0-1
+  pan: number // -1 to 1
+  muted: boolean
+  solo: boolean
 
   // Effects chain
-  effectsEnabled: boolean;
+  effectsEnabled: boolean
 
   // Visual
-  color: string;         // Track color for UI
-  waveformData?: Float32Array;
+  color: string // Track color for UI
+  waveformData?: Float32Array
 }
 
 export interface TrackState {
-  tracks: Track[];
-  selectedTrackId: string | null;
-  soloedTrackIds: string[];
+  tracks: Track[]
+  selectedTrackId: string | null
+  soloedTrackIds: string[]
 }
 
 // Default track values
@@ -49,8 +49,8 @@ export const DEFAULT_TRACK_VALUES: Partial<Track> = {
   solo: false,
   effectsEnabled: true,
   isLoaded: false,
-  isPlaying: false,
-};
+  isPlaying: false
+}
 
 // Track colors for visual distinction
 export const TRACK_COLORS = [
@@ -61,5 +61,5 @@ export const TRACK_COLORS = [
   '#9b59b6', // Purple
   '#2ecc71', // Green
   '#e74c3c', // Coral
-  '#3498db', // Light Blue
-];
+  '#3498db' // Light Blue
+]

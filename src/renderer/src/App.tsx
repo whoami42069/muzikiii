@@ -1,73 +1,73 @@
-import { useState, useCallback } from 'react';
-import { MainLayout } from './components/layout';
-import { Timeline } from './components/timeline';
-import { EffectsPanel } from './components/effects';
-import { VisualizerPanel } from './components/visualizer';
-import { MixerPanel } from './components/mixer';
-import { YouTubeImportModal } from './components/import';
-import { NotificationToast, ExportModal } from './components/common';
-import { useTracksStore, useTransportStore, notify } from './store';
-import { useKeyboardShortcuts, useProject } from './hooks';
+import { useState, useCallback } from 'react'
+import { MainLayout } from './components/layout'
+import { Timeline } from './components/timeline'
+import { EffectsPanel } from './components/effects'
+import { VisualizerPanel } from './components/visualizer'
+import { MixerPanel } from './components/mixer'
+import { YouTubeImportModal } from './components/import'
+import { NotificationToast, ExportModal } from './components/common'
+import { useTracksStore, useTransportStore, notify } from './store'
+import { useKeyboardShortcuts, useProject } from './hooks'
 
 function App(): React.JSX.Element {
-  const [showYouTubeModal, setShowYouTubeModal] = useState(false);
-  const [showExportModal, setShowExportModal] = useState(false);
-  const { addTrack } = useTracksStore();
-  const { setDuration } = useTransportStore();
-  const { saveProject, openProject, newProject, isDirty, projectName } = useProject();
+  const [showYouTubeModal, setShowYouTubeModal] = useState(false)
+  const [showExportModal, setShowExportModal] = useState(false)
+  const { addTrack } = useTracksStore()
+  const { setDuration } = useTransportStore()
+  const { saveProject, openProject, newProject, isDirty, projectName } = useProject()
 
   // Handle save
   const handleSave = useCallback(async () => {
-    const result = await saveProject();
+    const result = await saveProject()
     if (result.success) {
-      notify.success('Project saved');
+      notify.success('Project saved')
     } else if (result.error !== 'Canceled') {
-      notify.error(`Save failed: ${result.error}`);
+      notify.error(`Save failed: ${result.error}`)
     }
-  }, [saveProject]);
+  }, [saveProject])
 
   // Handle open
   const handleOpen = useCallback(async () => {
     if (isDirty) {
       // Could show confirmation dialog here
     }
-    const result = await openProject();
+    const result = await openProject()
     if (result.success) {
-      notify.success('Project loaded');
+      notify.success('Project loaded')
     } else if (result.error !== 'Canceled') {
-      notify.error(`Load failed: ${result.error}`);
+      notify.error(`Load failed: ${result.error}`)
     }
-  }, [openProject, isDirty]);
+  }, [openProject, isDirty])
 
   // Handle new project
   const handleNew = useCallback(() => {
     if (isDirty) {
       // Could show confirmation dialog here
     }
-    newProject();
-    notify.info('New project created');
-  }, [newProject, isDirty]);
+    newProject()
+    notify.info('New project created')
+  }, [newProject, isDirty])
 
   // Handle export
   const handleExport = useCallback(() => {
-    setShowExportModal(true);
-  }, []);
+    setShowExportModal(true)
+  }, [])
 
   // Enable keyboard shortcuts
   useKeyboardShortcuts({
     onSave: handleSave,
     onOpen: handleOpen,
     onNew: handleNew,
-    onExport: handleExport,
-  });
+    onExport: handleExport
+  })
 
-  const handleImportClick = async () => {
+  const handleImportClick = async (): Promise<void> => {
     try {
-      const result = await window.api.file.importAudio();
+      const result = await window.api.file.importAudio()
       if (result?.success && result?.filePaths) {
         // Add each imported file as a track
         for (const filePath of result.filePaths) {
-          const fileName = filePath.split(/[/\\]/).pop() || 'Untitled';
+          const fileName = filePath.split(/[/\\]/).pop() || 'Untitled'
           addTrack({
             title: fileName.replace(/\.[^.]+$/, ''), // Remove extension
             duration: 180, // Will be updated when audio loads
@@ -75,20 +75,20 @@ function App(): React.JSX.Element {
             channels: 2,
             source: 'local',
             filePath,
-            addedAt: Date.now(),
-          });
+            addedAt: Date.now()
+          })
         }
         // Update duration to longest track
-        setDuration(180);
+        setDuration(180)
       }
     } catch (error) {
-      console.error('Import error:', error);
+      console.error('Import error:', error)
     }
-  };
+  }
 
-  const handleYouTubeClick = () => {
-    setShowYouTubeModal(true);
-  };
+  const handleYouTubeClick = (): void => {
+    setShowYouTubeModal(true)
+  }
 
   const handleYouTubeImportComplete = useCallback(
     (filePath: string, metadata: { title: string; artist?: string; duration: number }) => {
@@ -99,19 +99,19 @@ function App(): React.JSX.Element {
         channels: 2,
         source: 'youtube',
         filePath,
-        addedAt: Date.now(),
-      });
-      setDuration(Math.max(metadata.duration || 180, 60));
+        addedAt: Date.now()
+      })
+      setDuration(Math.max(metadata.duration || 180, 60))
     },
     [addTrack, setDuration]
-  );
+  )
 
-  const handleDropFiles = async (files: FileList) => {
+  const handleDropFiles = async (files: FileList): Promise<void> => {
     for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+      const file = files[i]
       if (file.type.startsWith('audio/')) {
         // Electron adds path property to File objects
-        const filePath = (file as File & { path?: string }).path || file.name;
+        const filePath = (file as File & { path?: string }).path || file.name
         addTrack({
           title: file.name.replace(/\.[^.]+$/, ''),
           duration: 180,
@@ -119,12 +119,12 @@ function App(): React.JSX.Element {
           channels: 2,
           source: 'local',
           filePath,
-          addedAt: Date.now(),
-        });
+          addedAt: Date.now()
+        })
       }
     }
-    setDuration(180);
-  };
+    setDuration(180)
+  }
 
   return (
     <>
@@ -156,7 +156,7 @@ function App(): React.JSX.Element {
       {/* Notification Toast */}
       <NotificationToast />
     </>
-  );
+  )
 }
 
-export default App;
+export default App

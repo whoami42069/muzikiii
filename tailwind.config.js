@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    './src/renderer/index.html',
-    './src/renderer/**/*.{js,ts,jsx,tsx}',
-  ],
+  content: ['./src/renderer/index.html', './src/renderer/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -21,23 +18,22 @@ module.exports = {
         // Visualizer colors
         'viz-bass': '#ff6b6b',
         'viz-mid': '#4ecdc4',
-        'viz-treble': '#45b7d1',
+        'viz-treble': '#45b7d1'
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'meter': 'meter 0.1s ease-out',
+        meter: 'meter 0.1s ease-out'
       },
       keyframes: {
         meter: {
           '0%': { transform: 'scaleY(0)' },
-          '100%': { transform: 'scaleY(1)' },
-        },
-      },
-    },
+          '100%': { transform: 'scaleY(1)' }
+        }
+      }
+    }
   },
-  plugins: [],
+  plugins: []
 }
-

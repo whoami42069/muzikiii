@@ -1,50 +1,50 @@
-import type { Track } from './track.types';
-import type { AllEffectParams } from './audio.types';
+import type { Track } from './track.types'
+import type { AllEffectParams } from './audio.types'
 
 /**
  * Project save file format (extends base ProjectFile from ipc.types)
  */
 export interface ProjectSaveData {
-  version: string;
-  name: string;
-  createdAt: number;
-  modifiedAt: number;
+  version: string
+  name: string
+  createdAt: number
+  modifiedAt: number
 
   // Transport state
   transport: {
-    bpm: number;
-  };
+    bpm: number
+  }
 
   // Tracks (without runtime state)
-  tracks: SerializedTrack[];
+  tracks: SerializedTrack[]
 
   // Effects state
-  effects: AllEffectParams;
+  effects: AllEffectParams
 }
 
 /**
  * Serialized track (excludes waveformData and runtime state)
  */
 export interface SerializedTrack {
-  id: string;
+  id: string
   metadata: {
-    title: string;
-    artist?: string;
-    album?: string;
-    duration: number;
-    sampleRate: number;
-    channels: number;
-    source: 'youtube' | 'local' | 'recording';
-    sourceUrl?: string;
-    filePath: string;
-    addedAt: number;
-  };
-  volume: number;
-  pan: number;
-  muted: boolean;
-  solo: boolean;
-  effectsEnabled: boolean;
-  color: string;
+    title: string
+    artist?: string
+    album?: string
+    duration: number
+    sampleRate: number
+    channels: number
+    source: 'youtube' | 'local' | 'recording'
+    sourceUrl?: string
+    filePath: string
+    addedAt: number
+  }
+  volume: number
+  pan: number
+  muted: boolean
+  solo: boolean
+  effectsEnabled: boolean
+  color: string
 }
 
 /**
@@ -59,8 +59,8 @@ export function serializeTrack(track: Track): SerializedTrack {
     muted: track.muted,
     solo: track.solo,
     effectsEnabled: track.effectsEnabled,
-    color: track.color,
-  };
+    color: track.color
+  }
 }
 
 /**
@@ -71,6 +71,6 @@ export function deserializeTrack(serialized: SerializedTrack): Track {
     ...serialized,
     isLoaded: false,
     isPlaying: false,
-    waveformData: undefined,
-  };
+    waveformData: undefined
+  }
 }

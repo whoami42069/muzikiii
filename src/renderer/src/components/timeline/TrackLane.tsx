@@ -1,20 +1,20 @@
-import type { Track } from '../../types';
-import { WaveformDisplay } from './WaveformDisplay';
+import type { Track } from '../../types'
+import { WaveformDisplay } from './WaveformDisplay'
 
 interface TrackLaneProps {
-  track: Track;
-  index: number;
-  pixelsPerSecond: number;
-  totalWidth: number;
+  track: Track
+  index: number
+  pixelsPerSecond: number
+  totalWidth: number
 }
 
 export function TrackLane({
   track,
   index,
   pixelsPerSecond,
-  totalWidth,
+  totalWidth
 }: TrackLaneProps): React.JSX.Element {
-  const trackWidth = track.metadata.duration * pixelsPerSecond;
+  const trackWidth = track.metadata.duration * pixelsPerSecond
 
   return (
     <div
@@ -32,7 +32,7 @@ export function TrackLane({
           left: 0,
           width: trackWidth,
           backgroundColor: `${track.color}20`,
-          borderLeft: `3px solid ${track.color}`,
+          borderLeft: `3px solid ${track.color}`
         }}
       >
         {/* Track Header */}
@@ -62,18 +62,14 @@ export function TrackLane({
       {/* Solo/Mute indicators */}
       <div className="absolute top-1 right-2 flex items-center gap-1">
         {track.muted && (
-          <span className="px-1.5 py-0.5 text-[10px] bg-red-500 text-white rounded">
-            M
-          </span>
+          <span className="px-1.5 py-0.5 text-[10px] bg-red-500 text-white rounded">M</span>
         )}
         {track.solo && (
-          <span className="px-1.5 py-0.5 text-[10px] bg-yellow-500 text-black rounded">
-            S
-          </span>
+          <span className="px-1.5 py-0.5 text-[10px] bg-yellow-500 text-black rounded">S</span>
         )}
       </div>
     </div>
-  );
+  )
 }
 
 // Placeholder waveform when no file is loaded
@@ -83,19 +79,19 @@ function PlaceholderWaveform({ color }: { color: string }): React.JSX.Element {
       <div className="flex gap-0.5">
         {Array.from({ length: 50 }).map((_, i) => {
           // Use deterministic pattern instead of Math.random()
-          const height = 20 + Math.sin(i * 0.4) * 40 + Math.cos(i * 0.2) * 20;
+          const height = 20 + Math.sin(i * 0.4) * 40 + Math.cos(i * 0.2) * 20
           return (
             <div
               key={i}
               className="w-1 rounded-full"
               style={{
                 height: `${height}%`,
-                backgroundColor: `${color}60`,
+                backgroundColor: `${color}60`
               }}
             />
-          );
+          )
         })}
       </div>
     </div>
-  );
+  )
 }

@@ -1,14 +1,14 @@
-import { useTransportStore, useTracksStore } from '../../store';
+import { useTransportStore, useTracksStore } from '../../store'
 
 interface StatusBarProps {
-  status?: string;
+  status?: string
 }
 
 export function StatusBar({ status = 'Ready' }: StatusBarProps): React.JSX.Element {
-  const { isPlaying, bpm } = useTransportStore();
-  const { tracks } = useTracksStore();
+  const { isPlaying, bpm } = useTransportStore()
+  const { tracks } = useTracksStore()
 
-  const activeTracks = tracks.filter((t) => !t.muted).length;
+  const activeTracks = tracks.filter((t) => !t.muted).length
 
   return (
     <footer className="h-6 bg-daw-surface border-t border-daw-accent/30 flex items-center justify-between px-4 text-xs text-daw-muted">
@@ -26,7 +26,9 @@ export function StatusBar({ status = 'Ready' }: StatusBarProps): React.JSX.Eleme
 
       {/* Center: Info */}
       <div className="flex items-center gap-4">
-        <span>{tracks.length} track{tracks.length !== 1 ? 's' : ''}</span>
+        <span>
+          {tracks.length} track{tracks.length !== 1 ? 's' : ''}
+        </span>
         <span>•</span>
         <span>{activeTracks} active</span>
         <span>•</span>
@@ -40,5 +42,5 @@ export function StatusBar({ status = 'Ready' }: StatusBarProps): React.JSX.Eleme
         <span>Muzikiii v1.0.0</span>
       </div>
     </footer>
-  );
+  )
 }

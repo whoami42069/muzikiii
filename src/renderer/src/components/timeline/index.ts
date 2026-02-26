@@ -1,5 +1,5 @@
-export { Timeline } from './Timeline';
-export { TimelineRuler } from './TimelineRuler';
-export { TrackLane } from './TrackLane';
-export { Playhead } from './Playhead';
-export { WaveformDisplay } from './WaveformDisplay';
+export { Timeline } from './Timeline'
+export { TimelineRuler } from './TimelineRuler'
+export { TrackLane } from './TrackLane'
+export { Playhead } from './Playhead'
+export { WaveformDisplay } from './WaveformDisplay'

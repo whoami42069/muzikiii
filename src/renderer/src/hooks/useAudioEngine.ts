@@ -1,172 +1,188 @@
-import { useEffect, useCallback, useRef } from 'react';
-import { audioEngine, EngineState } from '../audio/engine';
-import { useTransportStore, useTracksStore } from '../store';
+import { useEffect, useCallback, useRef } from 'react'
+import { audioEngine, EngineState } from '../audio/engine'
+import { useTransportStore, useTracksStore } from '../store'
+
+interface UseAudioEngineReturn {
+  isPlaying: boolean
+  currentTime: number
+  isInitialized: boolean
+  play: () => Promise<void>
+  pause: () => void
+  stop: () => void
+  togglePlayPause: () => Promise<void>
+  seek: (time: number) => void
+  setTrackVolume: (trackId: string, volume: number) => void
+  setTrackPan: (trackId: string, pan: number) => void
+  setTrackMute: (trackId: string, muted: boolean) => void
+  setTrackSolo: (trackId: string, solo: boolean) => void
+  setMasterVolume: (volume: number) => void
+  getFrequencyData: () => Float32Array
+  getLevel: () => number
+  initializeAudio: () => Promise<boolean>
+}
 
 /**
  * Hook to connect the audio engine to React state
  */
-export function useAudioEngine() {
-  const {
-    isPlaying,
-    currentTime,
-    setIsPlaying,
-    setCurrentTime,
-    setDuration,
-  } = useTransportStore();
+export function useAudioEngine(): UseAudioEngineReturn {
+  const { isPlaying, currentTime, setIsPlaying, setCurrentTime, setDuration } = useTransportStore()
 
-  const { tracks, updateTrack } = useTracksStore();
-  const loadedTracksRef = useRef<Set<string>>(new Set());
+  const { tracks, updateTrack } = useTracksStore()
+  const loadedTracksRef = useRef<Set<string>>(new Set())
 
   // Initialize audio context on first user interaction
   const initializeAudio = useCallback(async () => {
-    if (audioEngine.isInitialized()) return true;
-    return await audioEngine.initialize();
-  }, []);
+    if (audioEngine.isInitialized()) return true
+    return await audioEngine.initialize()
+  }, [])
 
   // Play
   const play = useCallback(async () => {
-    const initialized = await initializeAudio();
+    const initialized = await initializeAudio()
     if (initialized) {
-      audioEngine.play();
+      audioEngine.play()
     }
-  }, [initializeAudio]);
+  }, [initializeAudio])
 
   // Pause
   const pause = useCallback(() => {
-    audioEngine.pause();
-  }, []);
+    audioEngine.pause()
+  }, [])
 
   // Stop
   const stop = useCallback(() => {
-    audioEngine.stop();
-  }, []);
+    audioEngine.stop()
+  }, [])
 
   // Toggle play/pause
   const togglePlayPause = useCallback(async () => {
     if (isPlaying) {
-      pause();
+      pause()
     } else {
-      await play();
+      await play()
     }
-  }, [isPlaying, play, pause]);
+  }, [isPlaying, play, pause])
 
   // Seek
-  const seek = useCallback((time: number) => {
-    audioEngine.seek(time);
-    setCurrentTime(time);
-  }, [setCurrentTime]);
+  const seek = useCallback(
+    (time: number) => {
+      audioEngine.seek(time)
+      setCurrentTime(time)
+    },
+    [setCurrentTime]
+  )
 
   // Set track volume
   const setTrackVolume = useCallback((trackId: string, volume: number) => {
-    audioEngine.setTrackVolume(trackId, volume);
-  }, []);
+    audioEngine.setTrackVolume(trackId, volume)
+  }, [])
 
   // Set track pan
   const setTrackPan = useCallback((trackId: string, pan: number) => {
-    audioEngine.setTrackPan(trackId, pan);
-  }, []);
+    audioEngine.setTrackPan(trackId, pan)
+  }, [])
 
   // Set track mute
   const setTrackMute = useCallback((trackId: string, muted: boolean) => {
-    audioEngine.setTrackMute(trackId, muted);
-  }, []);
+    audioEngine.setTrackMute(trackId, muted)
+  }, [])
 
   // Set track solo
   const setTrackSolo = useCallback((trackId: string, solo: boolean) => {
-    audioEngine.setTrackSolo(trackId, solo);
-  }, []);
+    audioEngine.setTrackSolo(trackId, solo)
+  }, [])
 
   // Set master volume
   const setMasterVolume = useCallback((volume: number) => {
-    audioEngine.setMasterVolume(volume);
-  }, []);
+    audioEngine.setMasterVolume(volume)
+  }, [])
 
   // Get frequency data for visualizations
   const getFrequencyData = useCallback(() => {
-    return audioEngine.getFrequencyData();
-  }, []);
+    return audioEngine.getFrequencyData()
+  }, [])
 
   // Get current level
   const getLevel = useCallback(() => {
-    return audioEngine.getLevel();
-  }, []);
+    return audioEngine.getLevel()
+  }, [])
 
   // Subscribe to engine events
   useEffect(() => {
-    const handleStateChange = (state: EngineState) => {
-      setIsPlaying(state === 'playing');
-    };
+    const handleStateChange = (state: EngineState): void => {
+      setIsPlaying(state === 'playing')
+    }
 
-    const handleTimeUpdate = (time: number) => {
-      setCurrentTime(time);
-    };
+    const handleTimeUpdate = (time: number): void => {
+      setCurrentTime(time)
+    }
 
-    const handleTrackLoaded = (trackId: string, duration: number) => {
+    const handleTrackLoaded = (trackId: string, duration: number): void => {
       // Find the track and update its metadata duration
-      const track = tracks.find((t) => t.id === trackId);
+      const track = tracks.find((t) => t.id === trackId)
       if (track) {
         updateTrack(trackId, {
           metadata: { ...track.metadata, duration },
-          isLoaded: true,
-        });
+          isLoaded: true
+        })
       }
       // Update total duration
-      setDuration(audioEngine.getDuration());
-    };
+      setDuration(audioEngine.getDuration())
+    }
 
-    audioEngine.on('stateChange', handleStateChange);
-    audioEngine.on('timeUpdate', handleTimeUpdate);
-    audioEngine.on('trackLoaded', handleTrackLoaded);
+    audioEngine.on('stateChange', handleStateChange)
+    audioEngine.on('timeUpdate', handleTimeUpdate)
+    audioEngine.on('trackLoaded', handleTrackLoaded)
 
     return () => {
-      audioEngine.off('stateChange', handleStateChange);
-      audioEngine.off('timeUpdate', handleTimeUpdate);
-      audioEngine.off('trackLoaded', handleTrackLoaded);
-    };
-  }, [setIsPlaying, setCurrentTime, setDuration, updateTrack, tracks]);
+      audioEngine.off('stateChange', handleStateChange)
+      audioEngine.off('timeUpdate', handleTimeUpdate)
+      audioEngine.off('trackLoaded', handleTrackLoaded)
+    }
+  }, [setIsPlaying, setCurrentTime, setDuration, updateTrack, tracks])
 
   // Load/unload tracks when they change
   useEffect(() => {
-    const currentTrackIds = new Set(tracks.map((t) => t.id));
-    const loadedIds = loadedTracksRef.current;
+    const currentTrackIds = new Set(tracks.map((t) => t.id))
+    const loadedIds = loadedTracksRef.current
 
     // Load new tracks
     tracks.forEach((track) => {
       if (!loadedIds.has(track.id) && track.metadata.filePath) {
-        console.log('[useAudioEngine] Loading track:', track.id, track.metadata.filePath);
-        audioEngine.loadTrack(track.id, track.metadata.filePath);
-        loadedIds.add(track.id);
+        console.log('[useAudioEngine] Loading track:', track.id, track.metadata.filePath)
+        audioEngine.loadTrack(track.id, track.metadata.filePath)
+        loadedIds.add(track.id)
       }
-    });
+    })
 
     // Unload removed tracks
     loadedIds.forEach((id) => {
       if (!currentTrackIds.has(id)) {
-        console.log('[useAudioEngine] Unloading track:', id);
-        audioEngine.unloadTrack(id);
-        loadedIds.delete(id);
+        console.log('[useAudioEngine] Unloading track:', id)
+        audioEngine.unloadTrack(id)
+        loadedIds.delete(id)
       }
-    });
-  }, [tracks]);
+    })
+  }, [tracks])
 
   // Sync mute/solo state with audio engine
   useEffect(() => {
     tracks.forEach((track) => {
-      audioEngine.setTrackMute(track.id, track.muted);
-      audioEngine.setTrackSolo(track.id, track.solo);
-      audioEngine.setTrackVolume(track.id, track.volume);
-      audioEngine.setTrackPan(track.id, track.pan);
-    });
-  }, [tracks]);
+      audioEngine.setTrackMute(track.id, track.muted)
+      audioEngine.setTrackSolo(track.id, track.solo)
+      audioEngine.setTrackVolume(track.id, track.volume)
+      audioEngine.setTrackPan(track.id, track.pan)
+    })
+  }, [tracks])
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       // Don't dispose the engine on unmount - it's a singleton
       // Just stop playback
-      audioEngine.stop();
-    };
-  }, []);
+      audioEngine.stop()
+    }
+  }, [])
 
   return {
     // State
@@ -195,6 +211,6 @@ export function useAudioEngine() {
     getLevel,
 
     // Initialization
-    initializeAudio,
-  };
+    initializeAudio
+  }
 }

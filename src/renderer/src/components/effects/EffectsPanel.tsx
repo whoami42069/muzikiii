@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import type { EffectType, AllEffectParams } from '../../types';
-import { useEffectsStore } from '../../store/effectsStore';
+import { useState } from 'react'
+import type { EffectType, AllEffectParams } from '../../types'
+import { useEffectsStore } from '../../store/effectsStore'
 
 interface EffectConfig {
-  type: EffectType;
-  name: string;
+  type: EffectType
+  name: string
 }
 
 const EFFECTS: EffectConfig[] = [
@@ -13,56 +13,54 @@ const EFFECTS: EffectConfig[] = [
   { type: 'eq', name: 'EQ' },
   { type: 'distortion', name: 'Distortion' },
   { type: 'chorus', name: 'Chorus' },
-  { type: 'compressor', name: 'Compressor' },
-];
+  { type: 'compressor', name: 'Compressor' }
+]
 
 export function EffectsPanel(): React.JSX.Element {
-  const params = useEffectsStore((state) => state.params);
-  const toggleEffect = useEffectsStore((state) => state.toggleEffect);
-  const updateReverbParam = useEffectsStore((state) => state.updateReverbParam);
-  const updateDelayParam = useEffectsStore((state) => state.updateDelayParam);
-  const updateEQParam = useEffectsStore((state) => state.updateEQParam);
-  const updateDistortionParam = useEffectsStore((state) => state.updateDistortionParam);
-  const updateChorusParam = useEffectsStore((state) => state.updateChorusParam);
-  const updateCompressorParam = useEffectsStore((state) => state.updateCompressorParam);
+  const params = useEffectsStore((state) => state.params)
+  const toggleEffect = useEffectsStore((state) => state.toggleEffect)
+  const updateReverbParam = useEffectsStore((state) => state.updateReverbParam)
+  const updateDelayParam = useEffectsStore((state) => state.updateDelayParam)
+  const updateEQParam = useEffectsStore((state) => state.updateEQParam)
+  const updateDistortionParam = useEffectsStore((state) => state.updateDistortionParam)
+  const updateChorusParam = useEffectsStore((state) => state.updateChorusParam)
+  const updateCompressorParam = useEffectsStore((state) => state.updateCompressorParam)
 
-  const [expandedEffect, setExpandedEffect] = useState<EffectType | null>(null);
+  const [expandedEffect, setExpandedEffect] = useState<EffectType | null>(null)
 
-  const toggleExpanded = (type: EffectType) => {
-    setExpandedEffect(expandedEffect === type ? null : type);
-  };
+  const toggleExpanded = (type: EffectType): void => {
+    setExpandedEffect(expandedEffect === type ? null : type)
+  }
 
-  const updateParam = (type: EffectType, param: string, value: number) => {
+  const updateParam = (type: EffectType, param: string, value: number): void => {
     // Route to the appropriate store action based on effect type
     switch (type) {
       case 'reverb':
-        updateReverbParam(param as keyof AllEffectParams['reverb'], value);
-        break;
+        updateReverbParam(param as keyof AllEffectParams['reverb'], value)
+        break
       case 'delay':
-        updateDelayParam(param as keyof AllEffectParams['delay'], value);
-        break;
+        updateDelayParam(param as keyof AllEffectParams['delay'], value)
+        break
       case 'eq':
-        updateEQParam(param as keyof AllEffectParams['eq'], value);
-        break;
+        updateEQParam(param as keyof AllEffectParams['eq'], value)
+        break
       case 'distortion':
-        updateDistortionParam(param as keyof AllEffectParams['distortion'], value);
-        break;
+        updateDistortionParam(param as keyof AllEffectParams['distortion'], value)
+        break
       case 'chorus':
-        updateChorusParam(param as keyof AllEffectParams['chorus'], value);
-        break;
+        updateChorusParam(param as keyof AllEffectParams['chorus'], value)
+        break
       case 'compressor':
-        updateCompressorParam(param as keyof AllEffectParams['compressor'], value);
-        break;
+        updateCompressorParam(param as keyof AllEffectParams['compressor'], value)
+        break
     }
-  };
+  }
 
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-daw-accent/30">
-        <h2 className="text-sm font-semibold text-daw-muted uppercase tracking-wide">
-          Effects
-        </h2>
+        <h2 className="text-sm font-semibold text-daw-muted uppercase tracking-wide">Effects</h2>
       </div>
 
       {/* Effects List */}
@@ -76,9 +74,7 @@ export function EffectsPanel(): React.JSX.Element {
             isExpanded={expandedEffect === effect.type}
             onToggle={() => toggleEffect(effect.type)}
             onExpand={() => toggleExpanded(effect.type)}
-            onParamChange={(param, value) =>
-              updateParam(effect.type, param, value)
-            }
+            onParamChange={(param, value) => updateParam(effect.type, param, value)}
           />
         ))}
       </div>
@@ -97,17 +93,17 @@ export function EffectsPanel(): React.JSX.Element {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 interface EffectUnitProps {
-  effectType: EffectType;
-  effectName: string;
-  effectParams: AllEffectParams[EffectType];
-  isExpanded: boolean;
-  onToggle: () => void;
-  onExpand: () => void;
-  onParamChange: (param: string, value: number) => void;
+  effectType: EffectType
+  effectName: string
+  effectParams: AllEffectParams[EffectType]
+  isExpanded: boolean
+  onToggle: () => void
+  onExpand: () => void
+  onParamChange: (param: string, value: number) => void
 }
 
 function EffectUnit({
@@ -117,45 +113,43 @@ function EffectUnit({
   isExpanded,
   onToggle,
   onExpand,
-  onParamChange,
+  onParamChange
 }: EffectUnitProps): React.JSX.Element {
   // Get display parameters (exclude 'enabled' and 'wet' for most effects)
   const getDisplayParams = (): Array<[string, number]> => {
-    const entries = Object.entries(effectParams) as Array<[string, number | string]>;
+    const entries = Object.entries(effectParams) as Array<[string, number | string]>
     return entries.filter(([key]) => {
       // Always exclude 'enabled'
-      if (key === 'enabled') return false;
+      if (key === 'enabled') return false
       // For EQ and Compressor, include 'wet' isn't in params, so show all
       // For others, exclude 'wet' as it's shown differently
       if (effectType === 'eq' || effectType === 'compressor') {
-        return key !== 'oversample'; // Exclude non-numeric params
+        return key !== 'oversample' // Exclude non-numeric params
       }
-      return key !== 'oversample'; // Exclude non-numeric params
-    }) as Array<[string, number]>;
-  };
+      return key !== 'oversample' // Exclude non-numeric params
+    }) as Array<[string, number]>
+  }
 
-  const displayParams = getDisplayParams();
+  const displayParams = getDisplayParams()
 
   return (
     <div
       className={`
         rounded-lg border transition-colors
-        ${effectParams.enabled
-          ? 'bg-daw-accent/30 border-daw-highlight/50'
-          : 'bg-daw-surface border-daw-accent/30'
+        ${
+          effectParams.enabled
+            ? 'bg-daw-accent/30 border-daw-highlight/50'
+            : 'bg-daw-surface border-daw-accent/30'
         }
       `}
     >
       {/* Header */}
-      <div
-        className="flex items-center justify-between p-3 cursor-pointer"
-        onClick={onExpand}
-      >
+      <div className="flex items-center justify-between p-3 cursor-pointer" onClick={onExpand}>
         <div className="flex items-center gap-3">
           <button
             onClick={(e) => {
-              e.stopPropagation();
-              onToggle();
+              e.stopPropagation()
+              onToggle()
             }}
             className={`
               w-10 h-5 rounded-full transition-colors relative
@@ -171,9 +165,7 @@ function EffectUnit({
           </button>
           <span className="font-medium">{effectName}</span>
         </div>
-        <span className="text-daw-muted text-sm">
-          {isExpanded ? '▼' : '▶'}
-        </span>
+        <span className="text-daw-muted text-sm">{isExpanded ? '▼' : '▶'}</span>
       </div>
 
       {/* Parameters */}
@@ -199,12 +191,12 @@ function EffectUnit({
         </div>
       )}
     </div>
-  );
+  )
 }
 
 // Helper functions for parameter formatting
 function formatParamName(param: string): string {
-  return param.replace(/([A-Z])/g, ' $1').trim();
+  return param.replace(/([A-Z])/g, ' $1').trim()
 }
 
 function formatParamValue(param: string, value: number): string {
@@ -213,89 +205,89 @@ function formatParamValue(param: string, value: number): string {
     case 'delayTime':
     case 'attack':
     case 'release':
-      return `${value.toFixed(2)}s`;
+      return `${value.toFixed(2)}s`
     case 'preDelay':
-      return `${(value * 1000).toFixed(0)}ms`;
+      return `${(value * 1000).toFixed(0)}ms`
     case 'wet':
     case 'depth':
     case 'distortion':
     case 'feedback':
-      return `${Math.round(value * 100)}%`;
+      return `${Math.round(value * 100)}%`
     case 'frequency':
-      return `${value.toFixed(1)}Hz`;
+      return `${value.toFixed(1)}Hz`
     case 'threshold':
-      return `${value}dB`;
+      return `${value}dB`
     case 'ratio':
-      return `${value}:1`;
+      return `${value}:1`
     case 'low':
     case 'mid':
     case 'high':
-      return `${value > 0 ? '+' : ''}${value}dB`;
+      return `${value > 0 ? '+' : ''}${value}dB`
     default:
-      return String(value);
+      return String(value)
   }
 }
 
 function getParamMin(param: string): number {
   switch (param) {
     case 'threshold':
-      return -60;
+      return -60
     case 'low':
     case 'mid':
     case 'high':
-      return -12;
+      return -12
     default:
-      return 0;
+      return 0
   }
 }
 
 function getParamMax(param: string): number {
   switch (param) {
     case 'decay':
-      return 10;
+      return 10
     case 'delayTime':
-      return 1;
+      return 1
     case 'preDelay':
-      return 0.1;
+      return 0.1
     case 'wet':
     case 'depth':
     case 'distortion':
-      return 1;
+      return 1
     case 'feedback':
-      return 0.9;
+      return 0.9
     case 'frequency':
-      return 10;
+      return 10
     case 'threshold':
-      return 0;
+      return 0
     case 'ratio':
-      return 20;
+      return 20
     case 'attack':
     case 'release':
-      return 1;
+      return 1
     case 'low':
     case 'mid':
     case 'high':
-      return 12;
+      return 12
     default:
-      return 100;
+      return 100
   }
 }
 
 function getParamStep(param: string): number {
   switch (param) {
     case 'preDelay':
-      return 0.001;
+      return 0.001
     case 'attack':
     case 'release':
-      return 0.001;
+      return 0.001
     case 'threshold':
     case 'low':
     case 'mid':
     case 'high':
-      return 1;
+      return 1
     case 'ratio':
-      return 0.5;
+      return 0.5
     default:
-      return 0.01;
+      return 0.01
   }
 }
