@@ -1,6 +1,7 @@
 import { ipcMain, dialog, app } from 'electron'
 import { promises as fs } from 'fs'
 import path from 'path'
+import { ipcError, ipcCanceled } from './types'
 
 // Project file extension
 const PROJECT_EXTENSION = '.mzk'
@@ -25,7 +26,7 @@ export function registerFileHandlers(): void {
         })
 
         if (result.canceled || !result.filePath) {
-          return { success: false, canceled: true }
+          return ipcCanceled()
         }
         savePath = result.filePath
       }
@@ -34,7 +35,7 @@ export function registerFileHandlers(): void {
       return { success: true, filePath: savePath }
     } catch (error) {
       console.error('[IPC] Save project error:', error)
-      return { success: false, error: String(error) }
+      return ipcError(String(error))
     }
   })
 
@@ -55,7 +56,7 @@ export function registerFileHandlers(): void {
         })
 
         if (result.canceled || result.filePaths.length === 0) {
-          return { success: false, canceled: true }
+          return ipcCanceled()
         }
         loadPath = result.filePaths[0]
       }
@@ -64,7 +65,7 @@ export function registerFileHandlers(): void {
       return { success: true, filePath: loadPath, data: content }
     } catch (error) {
       console.error('[IPC] Load project error:', error)
-      return { success: false, error: String(error) }
+      return ipcError(String(error))
     }
   })
 
@@ -82,13 +83,13 @@ export function registerFileHandlers(): void {
       })
 
       if (result.canceled || result.filePaths.length === 0) {
-        return { success: false, canceled: true }
+        return ipcCanceled()
       }
 
       return { success: true, filePaths: result.filePaths }
     } catch (error) {
       console.error('[IPC] Import audio error:', error)
-      return { success: false, error: String(error) }
+      return ipcError(String(error))
     }
   })
 
@@ -109,13 +110,13 @@ export function registerFileHandlers(): void {
         })
 
         if (result.canceled || !result.filePath) {
-          return { success: false, canceled: true }
+          return ipcCanceled()
         }
 
         return { success: true, filePath: result.filePath }
       } catch (error) {
         console.error('[IPC] Export audio error:', error)
-        return { success: false, error: String(error) }
+        return ipcError(String(error))
       }
     }
   )
@@ -129,50 +130,63 @@ export function registerFileHandlers(): void {
       })
 
       if (result.canceled || result.filePaths.length === 0) {
-        return { success: false, canceled: true }
+        return ipcCanceled()
       }
 
       return { success: true, folderPath: result.filePaths[0] }
     } catch (error) {
       console.error('[IPC] Select folder error:', error)
-      return { success: false, error: String(error) }
+      return ipcError(String(error))
     }
   })
 
   // Read file as buffer (for audio loading)
+  const ALLOWED_AUDIO_EXTENSIONS = [
+    '.mp3',
+    '.wav',
+    '.flac',
+    '.ogg',
+    '.m4a',
+    '.aac',
+    '.wma',
+    '.opus'
+  ]
+
   ipcMain.handle('file:read-buffer', async (_, filePath: string) => {
     try {
+      // Prevent path traversal attacks
+      if (filePath.includes('..') || filePath.includes('\x00')) {
+        return ipcError('Access denied: Invalid file path')
+      }
+
       // Security: Validate path is within allowed directories
       const audioDir = path.join(app.getPath('userData'), 'audio')
       const musicDir = app.getPath('music')
       const documentsDir = app.getPath('documents')
+      const downloadsDir = app.getPath('downloads')
 
       const resolvedPath = path.resolve(filePath)
       const isInAudioDir = resolvedPath.startsWith(path.resolve(audioDir))
       const isInMusicDir = resolvedPath.startsWith(path.resolve(musicDir))
       const isInDocsDir = resolvedPath.startsWith(path.resolve(documentsDir))
-
-      // Also allow paths that were selected via file dialog (check common locations)
-      const downloadsDir = app.getPath('downloads')
-      const homeDir = app.getPath('home')
       const isInDownloads = resolvedPath.startsWith(path.resolve(downloadsDir))
-      const isInHome = resolvedPath.startsWith(path.resolve(homeDir))
 
-      if (!isInAudioDir && !isInMusicDir && !isInDocsDir && !isInDownloads && !isInHome) {
+      if (!isInAudioDir && !isInMusicDir && !isInDocsDir && !isInDownloads) {
         console.warn('[IPC] Access denied for path:', resolvedPath)
-        return { success: false, error: 'Access denied: File path not in allowed directories' }
+        return ipcError('Access denied: File path not in allowed directories')
       }
 
-      // Prevent path traversal attacks
-      if (filePath.includes('..') || filePath.includes('\x00')) {
-        return { success: false, error: 'Access denied: Invalid file path' }
+      // Check audio file extension allowlist
+      const fileExt = path.extname(resolvedPath).toLowerCase()
+      if (!ALLOWED_AUDIO_EXTENSIONS.includes(fileExt)) {
+        return ipcError('Access denied: File type not allowed')
       }
 
       const buffer = await fs.readFile(resolvedPath)
       return { success: true, buffer }
     } catch (error) {
       console.error('[IPC] Read buffer error:', error)
-      return { success: false, error: String(error) }
+      return ipcError(String(error))
     }
   })
 

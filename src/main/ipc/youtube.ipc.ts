@@ -1,6 +1,7 @@
 import { ipcMain, BrowserWindow } from 'electron'
 import { youtubeService } from '../services/youtube.service'
 import { binaryService } from '../services/binary.service'
+import { ipcError } from './types'
 
 interface DownloadRequest {
   url: string
@@ -14,8 +15,8 @@ interface DownloadRequest {
 export function registerYouTubeHandlers(mainWindow: BrowserWindow): void {
   // Initialize services
   youtubeService.setMainWindow(mainWindow)
-  youtubeService.initialize()
-  binaryService.initialize()
+  youtubeService.initialize().catch((e) => console.error('[YouTube] Init error:', e))
+  binaryService.initialize().catch((e) => console.error('[Binary] Init error:', e))
 
   // Start download
   ipcMain.handle('youtube:download', async (_, request: DownloadRequest) => {
@@ -30,7 +31,7 @@ export function registerYouTubeHandlers(mainWindow: BrowserWindow): void {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
       console.error('[YouTube] Download error:', errorMessage)
-      return { success: false, error: errorMessage }
+      return ipcError(errorMessage)
     }
   })
 

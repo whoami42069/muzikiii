@@ -36,6 +36,14 @@ export function useWaveform({
   const [error, setError] = useState<string | null>(null)
   const [duration, setDuration] = useState(0)
 
+  // Use refs for callbacks to avoid triggering effect re-creation
+  const onReadyRef = useRef(onReady)
+  const onErrorRef = useRef(onError)
+  useEffect(() => {
+    onReadyRef.current = onReady
+    onErrorRef.current = onError
+  })
+
   // Initialize WaveSurfer
   useEffect(() => {
     if (!container || !filePath) return
@@ -62,14 +70,14 @@ export function useWaveform({
         setIsReady(true)
         setError(null)
         setDuration(ws.getDuration())
-        onReady?.()
+        onReadyRef.current?.()
       })
 
       ws.on('error', (err) => {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error'
         setError(errorMessage)
         setIsReady(false)
-        onError?.(err instanceof Error ? err : new Error(errorMessage))
+        onErrorRef.current?.(err instanceof Error ? err : new Error(errorMessage))
       })
 
       ws.load(filePath)
@@ -82,13 +90,14 @@ export function useWaveform({
 
     return () => {
       if (wavesurferRef.current) {
+        wavesurferRef.current.unAll()
         wavesurferRef.current.destroy()
         wavesurferRef.current = null
       }
       setIsReady(false)
       setError(null)
     }
-  }, [container, filePath, color, pixelsPerSecond, onReady, onError])
+  }, [container, filePath, color, pixelsPerSecond])
 
   // Seek to position (0-1 progress)
   const seekTo = useCallback(

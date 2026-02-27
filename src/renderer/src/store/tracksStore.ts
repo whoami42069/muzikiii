@@ -20,6 +20,9 @@ interface TracksState {
   // Loading
   setTrackLoaded: (id: string, loaded: boolean) => void
   setWaveformData: (id: string, data: Float32Array) => void
+
+  // Reset
+  resetTracks: () => void
 }
 
 const TRACK_COLORS = [
@@ -112,6 +115,11 @@ export const useTracksStore = create<TracksState>(
     setWaveformData: (id, data) =>
       set((state) => ({
         tracks: state.tracks.map((t) => (t.id === id ? { ...t, waveformData: data } : t))
-      }))
+      })),
+
+    resetTracks: () => {
+      trackCounter = 0
+      set({ tracks: [], selectedTrackId: null })
+    }
   })
 )

@@ -79,6 +79,11 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps): React.JSX.El
       const playersToDispose: Tone.Player[] = []
       const channelsToDispose: Tone.Channel[] = []
 
+      // Estimate progress during rendering
+      const progressInterval = setInterval(() => {
+        setProgress((prev) => Math.min(prev + 2, 65))
+      }, 200)
+
       try {
         // Create offline context and render
         const renderedBuffer = await Tone.Offline(
@@ -117,6 +122,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps): React.JSX.El
           sampleRate
         )
 
+        clearInterval(progressInterval)
         setProgress(70)
 
         // Convert ToneAudioBuffer to standard AudioBuffer
@@ -150,7 +156,8 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps): React.JSX.El
           setProgress(0)
         }, 500)
       } finally {
-        // Cleanup Tone.js resources
+        // Cleanup interval and Tone.js resources
+        clearInterval(progressInterval)
         playersToDispose.forEach((p) => p.dispose())
         channelsToDispose.forEach((c) => c.dispose())
       }

@@ -138,6 +138,15 @@ class YouTubeService {
     }
 
     this.currentDownload = new AbortController()
+    const signal = this.currentDownload.signal
+
+    // Check if already cancelled
+    if (signal.aborted) {
+      throw new Error('Download cancelled')
+    }
+
+    // Will be set once we know the output path (for cleanup on cancel)
+    let outputPath = ''
 
     try {
       // Get video info first
@@ -154,10 +163,7 @@ class YouTubeService {
       // Generate output filename
       const safeTitle = (info.title || 'download').replace(/[<>:"/\\|?*]/g, '_').substring(0, 100)
       const timestamp = Date.now()
-      const outputPath = path.join(
-        this.audioDir,
-        `${safeTitle}_${timestamp}.${options.outputFormat}`
-      )
+      outputPath = path.join(this.audioDir, `${safeTitle}_${timestamp}.${options.outputFormat}`)
 
       // Download with progress tracking
       let lastProgress = 0
@@ -181,6 +187,11 @@ class YouTubeService {
         quality:
           options.quality === 'best' ? 'highest' : options.quality === 'low' ? 'lowest' : undefined,
         onProgress: (progress: VideoProgress) => {
+          // Check if download was cancelled
+          if (signal.aborted) {
+            throw new Error('Download cancelled')
+          }
+
           const percentage = progress.percentage || 0
 
           // Only send updates when progress changes significantly
@@ -198,7 +209,12 @@ class YouTubeService {
         }
       }
 
-      await instance.downloadAsync(options.url, formatOptions)
+      const DOWNLOAD_TIMEOUT = 10 * 60 * 1000 // 10 minutes
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Download timed out after 10 minutes')), DOWNLOAD_TIMEOUT)
+      })
+
+      await Promise.race([instance.downloadAsync(options.url, formatOptions), timeoutPromise])
 
       // Verify file exists
       await fs.access(outputPath)
@@ -225,6 +241,16 @@ class YouTubeService {
       this.sendComplete(result)
       return result
     } catch (error) {
+      if (signal.aborted) {
+        // Clean up partial file
+        try {
+          await fs.unlink(outputPath)
+        } catch {
+          // Partial file may not exist
+        }
+        this.sendError({ message: 'Download cancelled', code: 'CANCELLED' })
+        throw new Error('Download cancelled')
+      }
       const message = error instanceof Error ? error.message : 'Unknown download error'
       this.sendError({ message, code: 'DOWNLOAD_FAILED' })
       throw error

@@ -78,20 +78,6 @@ export function EffectsPanel(): React.JSX.Element {
           />
         ))}
       </div>
-
-      {/* Master */}
-      <div className="p-3 border-t border-daw-accent/30">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-daw-muted">Master Volume</span>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            defaultValue={80}
-            className="w-24 accent-daw-highlight"
-          />
-        </div>
-      </div>
     </div>
   )
 }
@@ -151,6 +137,7 @@ function EffectUnit({
               e.stopPropagation()
               onToggle()
             }}
+            title={`${effectName}: ${effectParams.enabled ? 'On' : 'Off'} (click to toggle)`}
             className={`
               w-10 h-5 rounded-full transition-colors relative
               ${effectParams.enabled ? 'bg-daw-highlight' : 'bg-daw-muted'}
@@ -184,6 +171,7 @@ function EffectUnit({
                 step={getParamStep(param)}
                 value={value}
                 onChange={(e) => onParamChange(param, Number(e.target.value))}
+                title={`${formatParamName(param)}: ${formatParamValue(param, value)} (double-click to reset)`}
                 className="w-full accent-daw-highlight"
               />
             </div>

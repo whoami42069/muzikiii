@@ -230,10 +230,8 @@ export function useProject(): UseProjectReturn {
    * Create new project
    */
   const newProject = useCallback((): void => {
-    // Clear all tracks
-    tracksStore.tracks.forEach((track) => {
-      tracksStore.removeTrack(track.id)
-    })
+    // Clear all tracks and reset counter
+    tracksStore.resetTracks()
 
     // Reset transport
     transportStore.setBpm(120)

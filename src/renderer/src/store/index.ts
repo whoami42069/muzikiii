@@ -1,5 +1,6 @@
 export { useTransportStore } from './transportStore'
 export { useTracksStore } from './tracksStore'
-export { useEffectsStore, getEffectInstances } from './effectsStore'
+export { useEffectsStore } from './effectsStore'
+export { getEffectInstances } from '../audio/effectInstances'
 export { useProjectStore } from './projectStore'
 export { useNotificationStore, notify } from './notificationStore'

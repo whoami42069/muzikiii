@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from 'react'
 import { useAudioEngine } from './useAudioEngine'
 import { audioEngine } from '../audio/engine'
-import { useTransportStore } from '../store'
+import { useTransportStore, useTracksStore } from '../store'
 
 interface KeyboardShortcutsOptions {
   onSave?: () => void
@@ -18,6 +18,7 @@ interface KeyboardShortcutsOptions {
 export function useKeyboardShortcuts(options: KeyboardShortcutsOptions = {}): void {
   const { togglePlayPause, stop, seek } = useAudioEngine()
   const { duration, setCurrentTime } = useTransportStore()
+  const { selectedTrackId, toggleMute, toggleSolo } = useTracksStore()
 
   // Destructure options to avoid object reference changes causing re-renders
   const { onSave, onOpen, onNew, onExport, onUndo, onRedo } = options
@@ -133,11 +134,15 @@ export function useKeyboardShortcuts(options: KeyboardShortcutsOptions = {}): vo
           break
 
         case 'KeyM':
-          // Mute selected track - could be implemented
+          if (selectedTrackId) {
+            toggleMute(selectedTrackId)
+          }
           break
 
         case 'KeyS':
-          // Solo selected track - could be implemented
+          if (selectedTrackId) {
+            toggleSolo(selectedTrackId)
+          }
           break
       }
     }
@@ -156,6 +161,9 @@ export function useKeyboardShortcuts(options: KeyboardShortcutsOptions = {}): vo
     onNew,
     onExport,
     onUndo,
-    onRedo
+    onRedo,
+    selectedTrackId,
+    toggleMute,
+    toggleSolo
   ])
 }

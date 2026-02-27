@@ -58,7 +58,9 @@ function App(): React.JSX.Element {
     onSave: handleSave,
     onOpen: handleOpen,
     onNew: handleNew,
-    onExport: handleExport
+    onExport: handleExport,
+    onUndo: () => notify.info('Undo not yet implemented'),
+    onRedo: () => notify.info('Redo not yet implemented')
   })
 
   const handleImportClick = async (): Promise<void> => {

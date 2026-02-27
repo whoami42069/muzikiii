@@ -9,26 +9,7 @@ import type {
   ChorusParams,
   CompressorParams
 } from '../types'
-import {
-  ReverbEffect,
-  DelayEffect,
-  EQEffect,
-  DistortionEffect,
-  ChorusEffect,
-  CompressorEffect
-} from '../audio/effects'
-
-/**
- * Effects instances (singleton)
- */
-const effectInstances = {
-  reverb: new ReverbEffect(),
-  delay: new DelayEffect(),
-  eq: new EQEffect(),
-  distortion: new DistortionEffect(),
-  chorus: new ChorusEffect(),
-  compressor: new CompressorEffect()
-}
+import { getEffectInstances } from '../audio/effectInstances'
 
 /**
  * Default effect parameters
@@ -107,7 +88,7 @@ interface EffectsActions {
   setEffectParams: <T extends EffectType>(type: T, params: Partial<AllEffectParams[T]>) => void
 
   // Effect chain access
-  getEffectInstances: () => typeof effectInstances
+  getEffectInstances: () => ReturnType<typeof getEffectInstances>
 
   // Reset
   resetEffect: (type: EffectType) => void
@@ -131,6 +112,10 @@ export const useEffectsStore = create<EffectsState & EffectsActions>(
 
     // Set effect enabled state
     setEffectEnabled: (type, enabled) => {
+      // Update Tone.js instance first
+      getEffectInstances()[type].setEnabled(enabled)
+
+      // Then update state
       set((state) => ({
         params: {
           ...state.params,
@@ -140,13 +125,25 @@ export const useEffectsStore = create<EffectsState & EffectsActions>(
           }
         }
       }))
-
-      // Update Tone.js instance
-      effectInstances[type].setEnabled(enabled)
     },
 
     // Update reverb parameter
     updateReverbParam: (param, value) => {
+      // Update Tone.js instance first
+      const effect = getEffectInstances().reverb
+      if (param === 'decay') {
+        effect
+          .setDecay(value as number)
+          .catch((e) => console.error('[Effects] Reverb decay error:', e))
+      } else if (param === 'preDelay') {
+        effect
+          .setPreDelay(value as number)
+          .catch((e) => console.error('[Effects] Reverb preDelay error:', e))
+      } else if (param === 'wet') {
+        effect.setWet(value as number)
+      }
+
+      // Then update state
       set((state) => ({
         params: {
           ...state.params,
@@ -156,20 +153,21 @@ export const useEffectsStore = create<EffectsState & EffectsActions>(
           }
         }
       }))
-
-      // Update Tone.js instance
-      const effect = effectInstances.reverb
-      if (param === 'decay') {
-        effect.setDecay(value as number)
-      } else if (param === 'preDelay') {
-        effect.setPreDelay(value as number)
-      } else if (param === 'wet') {
-        effect.setWet(value as number)
-      }
     },
 
     // Update delay parameter
     updateDelayParam: (param, value) => {
+      // Update Tone.js instance first
+      const effect = getEffectInstances().delay
+      if (param === 'delayTime') {
+        effect.setDelayTime(value as number)
+      } else if (param === 'feedback') {
+        effect.setFeedback(value as number)
+      } else if (param === 'wet') {
+        effect.setWet(value as number)
+      }
+
+      // Then update state
       set((state) => ({
         params: {
           ...state.params,
@@ -179,32 +177,12 @@ export const useEffectsStore = create<EffectsState & EffectsActions>(
           }
         }
       }))
-
-      // Update Tone.js instance
-      const effect = effectInstances.delay
-      if (param === 'delayTime') {
-        effect.setDelayTime(value as number)
-      } else if (param === 'feedback') {
-        effect.setFeedback(value as number)
-      } else if (param === 'wet') {
-        effect.setWet(value as number)
-      }
     },
 
     // Update EQ parameter
     updateEQParam: (param, value) => {
-      set((state) => ({
-        params: {
-          ...state.params,
-          eq: {
-            ...state.params.eq,
-            [param]: value
-          }
-        }
-      }))
-
-      // Update Tone.js instance
-      const effect = effectInstances.eq
+      // Update Tone.js instance first
+      const effect = getEffectInstances().eq
       if (param === 'low') {
         effect.setLow(value as number)
       } else if (param === 'mid') {
@@ -216,10 +194,32 @@ export const useEffectsStore = create<EffectsState & EffectsActions>(
       } else if (param === 'highFrequency') {
         effect.setHighFrequency(value as number)
       }
+
+      // Then update state
+      set((state) => ({
+        params: {
+          ...state.params,
+          eq: {
+            ...state.params.eq,
+            [param]: value
+          }
+        }
+      }))
     },
 
     // Update distortion parameter
     updateDistortionParam: (param, value) => {
+      // Update Tone.js instance first
+      const effect = getEffectInstances().distortion
+      if (param === 'distortion') {
+        effect.setDistortion(value as number)
+      } else if (param === 'oversample') {
+        effect.setOversample(value as 'none' | '2x' | '4x')
+      } else if (param === 'wet') {
+        effect.setWet(value as number)
+      }
+
+      // Then update state
       set((state) => ({
         params: {
           ...state.params,
@@ -229,32 +229,12 @@ export const useEffectsStore = create<EffectsState & EffectsActions>(
           }
         }
       }))
-
-      // Update Tone.js instance
-      const effect = effectInstances.distortion
-      if (param === 'distortion') {
-        effect.setDistortion(value as number)
-      } else if (param === 'oversample') {
-        effect.setOversample(value as 'none' | '2x' | '4x')
-      } else if (param === 'wet') {
-        effect.setWet(value as number)
-      }
     },
 
     // Update chorus parameter
     updateChorusParam: (param, value) => {
-      set((state) => ({
-        params: {
-          ...state.params,
-          chorus: {
-            ...state.params.chorus,
-            [param]: value
-          }
-        }
-      }))
-
-      // Update Tone.js instance
-      const effect = effectInstances.chorus
+      // Update Tone.js instance first
+      const effect = getEffectInstances().chorus
       if (param === 'frequency') {
         effect.setFrequency(value as number)
       } else if (param === 'delayTime') {
@@ -264,22 +244,23 @@ export const useEffectsStore = create<EffectsState & EffectsActions>(
       } else if (param === 'wet') {
         effect.setWet(value as number)
       }
-    },
 
-    // Update compressor parameter
-    updateCompressorParam: (param, value) => {
+      // Then update state
       set((state) => ({
         params: {
           ...state.params,
-          compressor: {
-            ...state.params.compressor,
+          chorus: {
+            ...state.params.chorus,
             [param]: value
           }
         }
       }))
+    },
 
-      // Update Tone.js instance
-      const effect = effectInstances.compressor
+    // Update compressor parameter
+    updateCompressorParam: (param, value) => {
+      // Update Tone.js instance first
+      const effect = getEffectInstances().compressor
       if (param === 'threshold') {
         effect.setThreshold(value as number)
       } else if (param === 'ratio') {
@@ -291,10 +272,28 @@ export const useEffectsStore = create<EffectsState & EffectsActions>(
       } else if (param === 'knee') {
         effect.setKnee(value as number)
       }
+
+      // Then update state
+      set((state) => ({
+        params: {
+          ...state.params,
+          compressor: {
+            ...state.params.compressor,
+            [param]: value
+          }
+        }
+      }))
     },
 
     // Set multiple parameters at once
     setEffectParams: (type, params) => {
+      // Update Tone.js instance first
+      const result = getEffectInstances()[type].setParams(params)
+      if (result instanceof Promise) {
+        result.catch((e) => console.error('[Effects] setParams error:', e))
+      }
+
+      // Then update state
       set((state) => ({
         params: {
           ...state.params,
@@ -304,44 +303,44 @@ export const useEffectsStore = create<EffectsState & EffectsActions>(
           }
         }
       }))
-
-      // Update Tone.js instance
-      effectInstances[type].setParams(params)
     },
 
     // Get effect instances for audio routing
-    getEffectInstances: () => effectInstances,
+    getEffectInstances: () => getEffectInstances(),
 
     // Reset a single effect
     resetEffect: (type) => {
       const defaultParams = DEFAULT_PARAMS[type]
+
+      // Update Tone.js instance first
+      const result = getEffectInstances()[type].setParams(defaultParams)
+      if (result instanceof Promise) {
+        result.catch((e) => console.error('[Effects] setParams error:', e))
+      }
+
+      // Then update state
       set((state) => ({
         params: {
           ...state.params,
           [type]: defaultParams
         }
       }))
-
-      // Update Tone.js instance
-      effectInstances[type].setParams(defaultParams)
     },
 
     // Reset all effects
     resetAllEffects: () => {
-      set({ params: DEFAULT_PARAMS })
-
-      // Update all Tone.js instances
-      Object.keys(effectInstances).forEach((type) => {
+      // Update all Tone.js instances first
+      const instances = getEffectInstances()
+      Object.keys(instances).forEach((type) => {
         const effectType = type as EffectType
-        effectInstances[effectType].setParams(DEFAULT_PARAMS[effectType])
+        const result = instances[effectType].setParams(DEFAULT_PARAMS[effectType])
+        if (result instanceof Promise) {
+          result.catch((e) => console.error('[Effects] setParams error:', e))
+        }
       })
+
+      // Then update state
+      set({ params: DEFAULT_PARAMS })
     }
   })
 )
-
-/**
- * Get effect instances for audio routing
- */
-export function getEffectInstances(): typeof effectInstances {
-  return effectInstances
-}

@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { registerAllHandlers } from './ipc/handlers'
+import { youtubeService } from './services/youtube.service'
 
 function createWindow(): void {
   // Create the browser window with DAW-appropriate size
@@ -59,6 +60,11 @@ app.whenReady().then(() => {
   })
 
   createWindow()
+
+  app.on('before-quit', () => {
+    console.log('[App] Cleaning up before quit...')
+    youtubeService.cancel()
+  })
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

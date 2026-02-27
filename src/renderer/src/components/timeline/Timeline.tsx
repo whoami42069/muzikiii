@@ -128,7 +128,8 @@ export function Timeline({ onDropFiles }: TimelineProps): React.JSX.Element {
         <div className="flex items-center gap-2">
           <button
             onClick={handleZoomOut}
-            className="w-6 h-6 flex items-center justify-center text-sm bg-daw-accent hover:bg-daw-accent/80 rounded"
+            disabled={zoom <= 0.1}
+            className="w-6 h-6 flex items-center justify-center text-sm bg-daw-accent hover:bg-daw-accent/80 rounded disabled:opacity-30 disabled:cursor-not-allowed"
             title="Zoom out (-)"
           >
             −
@@ -150,7 +151,8 @@ export function Timeline({ onDropFiles }: TimelineProps): React.JSX.Element {
 
           <button
             onClick={handleZoomIn}
-            className="w-6 h-6 flex items-center justify-center text-sm bg-daw-accent hover:bg-daw-accent/80 rounded"
+            disabled={zoom >= 10}
+            className="w-6 h-6 flex items-center justify-center text-sm bg-daw-accent hover:bg-daw-accent/80 rounded disabled:opacity-30 disabled:cursor-not-allowed"
             title="Zoom in (+)"
           >
             +

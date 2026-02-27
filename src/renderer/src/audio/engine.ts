@@ -1,6 +1,6 @@
 import * as Tone from 'tone'
 import { gainToDb } from 'tone'
-import { getEffectInstances } from '../store/effectsStore'
+import { getEffectInstances, disposeEffectInstances } from './effectInstances'
 
 export type EngineState = 'stopped' | 'playing' | 'paused'
 
@@ -518,13 +518,7 @@ class AudioEngine {
 
     // Dispose effects chain
     if (this.effectsConnected) {
-      const effects = getEffectInstances()
-      effects.reverb.dispose()
-      effects.delay.dispose()
-      effects.eq.dispose()
-      effects.distortion.dispose()
-      effects.chorus.dispose()
-      effects.compressor.dispose()
+      disposeEffectInstances()
     }
 
     // Dispose master chain

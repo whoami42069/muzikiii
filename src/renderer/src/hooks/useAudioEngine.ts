@@ -29,6 +29,15 @@ export function useAudioEngine(): UseAudioEngineReturn {
 
   const { tracks, updateTrack } = useTracksStore()
   const loadedTracksRef = useRef<Set<string>>(new Set())
+  const tracksRef = useRef(tracks)
+  const updateTrackRef = useRef(updateTrack)
+  const prevTracksRef = useRef<typeof tracks>([])
+
+  // Keep refs in sync with latest values
+  useEffect(() => {
+    tracksRef.current = tracks
+    updateTrackRef.current = updateTrack
+  })
 
   // Initialize audio context on first user interaction
   const initializeAudio = useCallback(async () => {
@@ -118,10 +127,11 @@ export function useAudioEngine(): UseAudioEngineReturn {
     }
 
     const handleTrackLoaded = (trackId: string, duration: number): void => {
-      // Find the track and update its metadata duration
-      const track = tracks.find((t) => t.id === trackId)
+      // Use refs to avoid stale closure over tracks
+      const currentTracks = tracksRef.current
+      const track = currentTracks.find((t) => t.id === trackId)
       if (track) {
-        updateTrack(trackId, {
+        updateTrackRef.current(trackId, {
           metadata: { ...track.metadata, duration },
           isLoaded: true
         })
@@ -139,7 +149,7 @@ export function useAudioEngine(): UseAudioEngineReturn {
       audioEngine.off('timeUpdate', handleTimeUpdate)
       audioEngine.off('trackLoaded', handleTrackLoaded)
     }
-  }, [setIsPlaying, setCurrentTime, setDuration, updateTrack, tracks])
+  }, [setIsPlaying, setCurrentTime, setDuration])
 
   // Load/unload tracks when they change
   useEffect(() => {
@@ -165,14 +175,16 @@ export function useAudioEngine(): UseAudioEngineReturn {
     })
   }, [tracks])
 
-  // Sync mute/solo state with audio engine
+  // Sync mute/solo/volume/pan state with audio engine (diff-based)
   useEffect(() => {
     tracks.forEach((track) => {
-      audioEngine.setTrackMute(track.id, track.muted)
-      audioEngine.setTrackSolo(track.id, track.solo)
-      audioEngine.setTrackVolume(track.id, track.volume)
-      audioEngine.setTrackPan(track.id, track.pan)
+      const prev = prevTracksRef.current.find((t) => t.id === track.id)
+      if (!prev || prev.muted !== track.muted) audioEngine.setTrackMute(track.id, track.muted)
+      if (!prev || prev.solo !== track.solo) audioEngine.setTrackSolo(track.id, track.solo)
+      if (!prev || prev.volume !== track.volume) audioEngine.setTrackVolume(track.id, track.volume)
+      if (!prev || prev.pan !== track.pan) audioEngine.setTrackPan(track.id, track.pan)
     })
+    prevTracksRef.current = tracks
   }, [tracks])
 
   // Cleanup on unmount
