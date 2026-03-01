@@ -34,10 +34,12 @@ npm run preview      # Preview production build
 
 ### Directory Structure
 - `src/main/` - Electron main process (IPC, yt-dlp, file operations)
+  - `ipc/types.ts` - Standardized IPC response helpers
 - `src/preload/` - Context bridge for secure IPC
 - `src/renderer/` - React application
   - `components/` - UI components by feature
   - `audio/` - Tone.js engine and effects
+    - `effectInstances.ts` - Lazy effect factory (breaks circular dep)
   - `store/` - Zustand state stores
   - `types/` - TypeScript interfaces
 
@@ -93,6 +95,28 @@ npm run preview      # Preview production build
 - yt-dlp binaries auto-download to `app.getPath('userData')`
 - Use Tone.js transport as single source of truth for timing
 - wavesurfer.js is for visualization only, not playback
+- Effect instances are lazily created via `effectInstances.ts` (not at module scope)
+- Engine imports effects from `effectInstances.ts`, not from `effectsStore.ts` (avoids circular dep)
+- Reverb setDecay/setPreDelay are async - always use `.catch()` when calling
+- IPC error responses use `ipcError()`/`ipcCanceled()` helpers from `main/ipc/types.ts`
+- `file:read-buffer` restricts to audioDir/musicDir/documentsDir/downloadsDir + audio extensions only
+- YouTube downloads have 10-minute timeout and proper AbortController cancellation
+- `before-quit` handler cancels active YouTube downloads
+
+## GitHub
+
+- **Repo:** https://github.com/whoami42069/muzikiii
+- **Branch:** master
+
+## Companion Project: muzikiii-fx
+
+Native AU/VST3 audio effects plugin (same 6 effects as JUCE C++ DSP).
+- **Repo:** https://github.com/whoami42069/muzikiii-fx
+- **Location:** `C:\Users\hp\Desktop\mindstormcoding\muzikiii-fx`
+- **Stack:** JUCE 7, C++17, CMake
+- **Formats:** AU (macOS), VST3 (Windows), Standalone
+- **CI:** GitHub Actions builds AU on macOS-14 + VST3 on Windows
+- **AU validated:** `auval -v aufx MzFx Mzki` passes
 
 ## Dependencies
 
@@ -100,4 +124,5 @@ npm run preview      # Preview production build
 - electron, electron-vite, react, typescript
 - tone, wavesurfer.js, audiomotion-analyzer
 - zustand, framer-motion, tailwindcss
+- @radix-ui/react-tooltip (for Tooltip component)
 - ytdlp-nodejs (optional, for YouTube)
